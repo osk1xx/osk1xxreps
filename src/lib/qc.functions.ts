@@ -5,40 +5,56 @@ const InputSchema = z.object({
   url: z.string().url().max(2048),
 });
 
-const TARGET = "https://www.tymixfinds.pl/qc-finder";
+// QC image hosts commonly used by Chinese agents / Weidian / Taobao
+const QC_HOST_PATTERNS = [
+  /si\.geilicdn\.com/i,        // Weidian QC CDN
+  /img\.alicdn\.com/i,         // Taobao
+  /gd[0-9]?\.alicdn\.com/i,
+  /img\.kakobuy\.com/i,
+  /img\.cnfans\.com/i,
+  /cnfans\.com\/.*qc/i,
+  /qcphotos?\./i,
+  /\/qc\//i,
+  /pcitem\d+/i,                // Weidian item pattern
+];
 
-const isLikelyQcImage = (src: string) => {
-  if (!src) return false;
-  const s = src.toLowerCase();
-  if (!/^https?:\/\//.test(s)) return false;
-  if (s.startsWith("data:")) return false;
-  if (/(logo|icon|avatar|favicon|sprite|placeholder|loading|spinner|flag)/.test(s)) return false;
-  if (/\.svg(\?|$)/.test(s)) return false;
-  if (/(facebook|twitter|instagram|tiktok|youtube|pinterest)/.test(s)) return false;
-  return /\.(jpe?g|png|webp|gif|avif)(\?|$)/.test(s) || /image|img|photo|qc|cdn/.test(s);
+const REJECT_PATTERNS = [
+  /logo|icon|avatar|favicon|sprite|placeholder|spinner|flag|banner|advert/i,
+  /\.svg(\?|$)/i,
+  /facebook|twitter|instagram|tiktok|youtube|pinterest|discord/i,
+];
+
+const isQcImage = (src: string): boolean => {
+  if (!src || !/^https?:\/\//i.test(src)) return false;
+  if (REJECT_PATTERNS.some((r) => r.test(src))) return false;
+  if (!/\.(jpe?g|png|webp|avif)(\?|$)/i.test(src)) return false;
+  return QC_HOST_PATTERNS.some((r) => r.test(src));
 };
 
-const extractImages = (html: string): string[] => {
+const extractFromHtml = (html: string): string[] => {
   const out = new Set<string>();
+
+  // <img src/data-src/srcset>
   const imgRe = /<img\b[^>]*>/gi;
-  const srcRe = /\b(?:data-src|data-original|data-lazy-src|src)\s*=\s*["']([^"']+)["']/i;
+  const attrRe = /\b(?:data-src|data-original|data-lazy-src|src)\s*=\s*["']([^"']+)["']/i;
   const srcsetRe = /\bsrcset\s*=\s*["']([^"']+)["']/i;
 
   for (const tag of html.match(imgRe) ?? []) {
-    const m = tag.match(srcRe);
-    if (m && isLikelyQcImage(m[1])) out.add(m[1]);
+    const m = tag.match(attrRe);
+    if (m && isQcImage(m[1])) out.add(m[1]);
     const ss = tag.match(srcsetRe);
     if (ss) {
       for (const part of ss[1].split(",")) {
         const u = part.trim().split(/\s+/)[0];
-        if (isLikelyQcImage(u)) out.add(u);
+        if (isQcImage(u)) out.add(u);
       }
     }
   }
-  // Fallback: scrape any image URL anywhere in HTML
-  const urlRe = /https?:\/\/[^\s"'<>()]+\.(?:jpe?g|png|webp|avif)(?:\?[^\s"'<>()]*)?/gi;
+
+  // Any QC-host URL anywhere in the HTML/JSON payload
+  const urlRe = /https?:\/\/[^\s"'<>()\\]+\.(?:jpe?g|png|webp|avif)(?:\?[^\s"'<>()\\]*)?/gi;
   for (const u of html.match(urlRe) ?? []) {
-    if (isLikelyQcImage(u)) out.add(u);
+    if (isQcImage(u)) out.add(u);
   }
   return Array.from(out);
 };
@@ -50,14 +66,12 @@ export const findQcImages = createServerFn({ method: "POST" })
     if (!apiKey) {
       return {
         success: false as const,
-        error:
-          "Firecrawl is not connected. Connect the Firecrawl connector in Lovable to enable QC scraping.",
+        error: "Firecrawl is not connected.",
         images: [] as string[],
       };
     }
 
     try {
-      // Use Firecrawl actions to: navigate target, fill the input, click search, wait for images.
       const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
         method: "POST",
         headers: {
@@ -65,24 +79,17 @@ export const findQcImages = createServerFn({ method: "POST" })
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          url: TARGET,
+          url: data.url,
           formats: ["html"],
           onlyMainContent: false,
-          waitFor: 2000,
-          actions: [
-            { type: "wait", milliseconds: 1500 },
-            { type: "write", text: data.url, selector: "input" },
-            { type: "press", key: "Enter" },
-            { type: "wait", milliseconds: 10000 },
-            { type: "scrape" },
-          ],
+          waitFor: 6000,
         }),
       });
 
       if (res.status === 402) {
         return {
           success: false as const,
-          error: "Firecrawl: insufficient credits. Top up or upgrade your plan.",
+          error: "Firecrawl: insufficient credits. Top up to keep searching.",
           images: [],
         };
       }
@@ -91,18 +98,13 @@ export const findQcImages = createServerFn({ method: "POST" })
       if (!res.ok) {
         return {
           success: false as const,
-          error: json?.error || `Firecrawl error (${res.status})`,
+          error: json?.error || `Scrape failed (${res.status})`,
           images: [],
         };
       }
 
-      const html: string =
-        json?.data?.html ??
-        json?.html ??
-        json?.data?.actions?.scrapes?.[0]?.html ??
-        "";
-
-      const images = extractImages(html);
+      const html: string = json?.data?.html ?? json?.html ?? "";
+      const images = extractFromHtml(html);
       return { success: true as const, images, error: null };
     } catch (e) {
       return {
