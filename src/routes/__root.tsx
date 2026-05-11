@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "QC FINDER" },
+      { name: "description", content: "Web app automatically finds and displays QC images from Chinese product pages via a pasted link." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "QC FINDER" },
+      { property: "og:description", content: "Web app automatically finds and displays QC images from Chinese product pages via a pasted link." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "QC FINDER" },
+      { name: "twitter:description", content: "Web app automatically finds and displays QC images from Chinese product pages via a pasted link." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da086186-929a-47c7-bfb9-03c4a53a5ccf/id-preview-a0149328--b7c62f23-f8de-40b4-ab05-e2126ff1f56b.lovable.app-1778493796294.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da086186-929a-47c7-bfb9-03c4a53a5ccf/id-preview-a0149328--b7c62f23-f8de-40b4-ab05-e2126ff1f56b.lovable.app-1778493796294.png" },
     ],
     links: [
       {
