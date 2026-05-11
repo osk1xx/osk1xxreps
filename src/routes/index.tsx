@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { findQcImages } from "@/lib/qc.functions";
+import { findQcImages, findQcImagesViaTymix } from "@/lib/qc.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,8 +29,9 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const find = useServerFn(findQcImages);
+  const findAlt = useServerFn(findQcImagesViaTymix);
   const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<null | "primary" | "alt">(null);
   const [images, setImages] = useState<string[]>([]);
   const [dialog, setDialog] = useState<{ open: boolean; title: string; msg: string }>({
     open: false,
@@ -39,25 +40,37 @@ function Index() {
   });
   const [preview, setPreview] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const run = async (mode: "primary" | "alt") => {
     if (!url.trim() || loading) return;
-    setLoading(true);
+    setLoading(mode);
     setImages([]);
     try {
-      const r = await find({ data: { url: url.trim() } });
+      const fn = mode === "primary" ? find : findAlt;
+      const r = await fn({ data: { url: url.trim() } });
       if (!r.success) {
         setDialog({ open: true, title: "Something went wrong", msg: r.error });
       } else if (r.images.length === 0) {
-        setDialog({ open: true, title: "No images found", msg: "We couldn't find any QC photos for this link." });
+        setDialog({
+          open: true,
+          title: "No images found",
+          msg:
+            mode === "primary"
+              ? "Try the alternative finder below."
+              : "We couldn't find any QC photos for this link.",
+        });
       } else {
         setImages(r.images);
       }
     } catch {
       setDialog({ open: true, title: "Server error", msg: "Please try again in a moment." });
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void run("primary");
   };
 
   return (
@@ -104,14 +117,14 @@ function Index() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://..."
               className="h-12 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
-              disabled={loading}
+              disabled={!!loading}
             />
             <Button
               type="submit"
-              disabled={loading}
+              disabled={!!loading}
               className="h-12 rounded-xl px-6 text-sm font-medium"
             >
-              {loading ? (
+              {loading === "primary" ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Searching…
@@ -123,6 +136,27 @@ function Index() {
                 </>
               )}
             </Button>
+          </div>
+          <div className="mt-3 flex flex-col items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!!loading || !url.trim()}
+              onClick={() => void run("alt")}
+              className="h-10 rounded-xl px-5 text-xs font-medium"
+            >
+              {loading === "alt" ? (
+                <>
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  Trying alternative…
+                </>
+              ) : (
+                <>Try alternative finder</>
+              )}
+            </Button>
+            <p className="text-[11px] text-muted-foreground">
+              Uses tymixfinds.pl as a fallback source.
+            </p>
           </div>
           {loading && (
             <p className="mt-4 text-xs text-muted-foreground">

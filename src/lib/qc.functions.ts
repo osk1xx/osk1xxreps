@@ -111,3 +111,66 @@ export const findQcImages = createServerFn({ method: "POST" })
       };
     }
   });
+
+// Secondary finder — proxies the user's link through tymixfinds.pl/api/qc
+// (the same backend that powers their public QC Finder tool).
+const collectPhotos = (node: unknown, out: Set<string>) => {
+  if (!node) return;
+  if (typeof node === "string") {
+    if (/^https?:\/\/.+\.(jpe?g|png|webp|avif)/i.test(node) && !REJECT.test(node)) {
+      out.add(stripResize(node));
+    }
+    return;
+  }
+  if (Array.isArray(node)) {
+    for (const v of node) collectPhotos(v, out);
+    return;
+  }
+  if (typeof node === "object") {
+    for (const v of Object.values(node as Record<string, unknown>)) collectPhotos(v, out);
+  }
+};
+
+export const findQcImagesViaTymix = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => InputSchema.parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const res = await fetch(
+        `https://www.tymixfinds.pl/api/qc?url=${encodeURIComponent(data.url)}`,
+        {
+          headers: {
+            Referer: "https://www.tymixfinds.pl/qc-finder",
+            Origin: "https://www.tymixfinds.pl",
+            "User-Agent":
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+            Accept: "application/json,text/plain,*/*",
+          },
+        },
+      );
+
+      const text = await res.text();
+      let json: unknown = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        /* not JSON */
+      }
+
+      if (!res.ok) {
+        const err =
+          (json && typeof json === "object" && (json as any).error) ||
+          `Request failed (${res.status})`;
+        return { success: false as const, error: String(err), images: [] as string[] };
+      }
+
+      const out = new Set<string>();
+      collectPhotos(json, out);
+      return { success: true as const, images: Array.from(out), error: null };
+    } catch (e) {
+      return {
+        success: false as const,
+        error: e instanceof Error ? e.message : "Unknown error",
+        images: [] as string[],
+      };
+    }
+  });
