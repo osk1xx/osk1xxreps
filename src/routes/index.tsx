@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "OSK1X QC Finder — Find QC Photos by Product Link" },
+      { title: "osk1xx.x QC Finder — Find QC Photos by Product Link" },
       {
         name: "description",
         content:
@@ -79,7 +79,7 @@ function Index() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-foreground" />
-          <span className="text-sm font-medium tracking-widest">OSK1X</span>
+          <span className="text-sm font-medium tracking-widest">osk1xx.x</span>
         </div>
         <span className="text-xs text-muted-foreground">QC Finder</span>
       </header>
@@ -170,7 +170,7 @@ function Index() {
       </section>
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        OSK1X · QC Finder
+        osk1xx.x · QC Finder
       </footer>
 
       <Dialog open={dialog.open} onOpenChange={(o) => setDialog((s) => ({ ...s, open: o }))}>
