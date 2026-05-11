@@ -114,10 +114,19 @@ export const findQcImages = createServerFn({ method: "POST" })
 
 // Secondary finder — proxies the user's link through tymixfinds.pl/api/qc
 // (the same backend that powers their public QC Finder tool).
+
+// tymixfinds returns these placeholder/sample photos when the link is not
+// recognized — treat them as "no result" instead of showing them.
+const PLACEHOLDER = /cdn\.finds\.vectoreps\.pl\/finds\/0\/kakobuy-/i;
+
 const collectPhotos = (node: unknown, out: Set<string>) => {
   if (!node) return;
   if (typeof node === "string") {
-    if (/^https?:\/\/.+\.(jpe?g|png|webp|avif)/i.test(node) && !REJECT.test(node)) {
+    if (
+      /^https?:\/\/.+\.(jpe?g|png|webp|avif)/i.test(node) &&
+      !REJECT.test(node) &&
+      !PLACEHOLDER.test(node)
+    ) {
       out.add(stripResize(node));
     }
     return;
