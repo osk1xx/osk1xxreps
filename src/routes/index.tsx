@@ -38,7 +38,22 @@ function Index() {
     title: "",
     msg: "",
   });
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const previewOpen = previewIndex !== null;
+  const showPrev = () =>
+    setPreviewIndex((i) => (i === null ? null : (i - 1 + images.length) % images.length));
+  const showNext = () =>
+    setPreviewIndex((i) => (i === null ? null : (i + 1) % images.length));
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") showPrev();
+      else if (e.key === "ArrowRight") showNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
