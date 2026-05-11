@@ -183,10 +183,10 @@ function Index() {
               <span className="text-xs text-muted-foreground">{images.length} photos</span>
             </div>
             <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 [&>*]:mb-3">
-              {images.map((src) => (
+              {images.map((src, i) => (
                 <button
                   key={src}
-                  onClick={() => setPreview(src)}
+                  onClick={() => setPreviewIndex(i)}
                   className="group block w-full overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-foreground/30"
                 >
                   <img
