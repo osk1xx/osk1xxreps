@@ -132,14 +132,14 @@ function Index() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://..."
               className="h-12 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
-              disabled={!!loading}
+              disabled={loading}
             />
             <Button
               type="submit"
-              disabled={!!loading}
+              disabled={loading}
               className="h-12 rounded-xl px-6 text-sm font-medium"
             >
-              {loading === "primary" ? (
+              {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Searching…
@@ -151,27 +151,6 @@ function Index() {
                 </>
               )}
             </Button>
-          </div>
-          <div className="mt-3 flex flex-col items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!!loading || !url.trim()}
-              onClick={() => void run("alt")}
-              className="h-10 rounded-xl px-5 text-xs font-medium"
-            >
-              {loading === "alt" ? (
-                <>
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                  Trying alternative…
-                </>
-              ) : (
-                <>Try alternative finder</>
-              )}
-            </Button>
-            <p className="text-[11px] text-muted-foreground">
-              Uses tymixfinds.pl as a fallback source.
-            </p>
           </div>
           {loading && (
             <p className="mt-4 text-xs text-muted-foreground">
