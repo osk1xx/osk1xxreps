@@ -225,10 +225,39 @@ function Index() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+      <Dialog open={previewOpen} onOpenChange={(o) => !o && setPreviewIndex(null)}>
         <DialogContent className="max-w-3xl border-border bg-card p-2">
-          {preview && (
-            <img src={preview} alt="QC preview" className="h-auto w-full rounded-lg" />
+          {previewIndex !== null && (
+            <div className="relative">
+              <img
+                src={images[previewIndex]}
+                alt="QC preview"
+                className="h-auto w-full rounded-lg"
+              />
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={showPrev}
+                    aria-label="Previous photo"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow backdrop-blur transition hover:bg-background"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={showNext}
+                    aria-label="Next photo"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow backdrop-blur transition hover:bg-background"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+                    {previewIndex + 1} / {images.length}
+                  </span>
+                </>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
