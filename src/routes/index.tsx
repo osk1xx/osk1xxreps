@@ -31,7 +31,7 @@ function Index() {
   const find = useServerFn(findQcImages);
   const findAlt = useServerFn(findQcImagesViaTymix);
   const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState<null | "primary" | "alt">(null);
+  const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [dialog, setDialog] = useState<{ open: boolean; title: string; msg: string }>({
     open: false,
@@ -40,37 +40,52 @@ function Index() {
   });
   const [preview, setPreview] = useState<string | null>(null);
 
-  const run = async (mode: "primary" | "alt") => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!url.trim() || loading) return;
-    setLoading(mode);
+    setLoading(true);
     setImages([]);
     try {
-      const fn = mode === "primary" ? find : findAlt;
-      const r = await fn({ data: { url: url.trim() } });
-      if (!r.success) {
-        setDialog({ open: true, title: "Something went wrong", msg: r.error });
-      } else if (r.images.length === 0) {
+      const [r1, r2] = await Promise.all([
+        find({ data: { url: url.trim() } }).catch((e) => ({
+          success: false as const,
+          error: e instanceof Error ? e.message : "Error",
+          images: [] as string[],
+        })),
+        findAlt({ data: { url: url.trim() } }).catch((e) => ({
+          success: false as const,
+          error: e instanceof Error ? e.message : "Error",
+          images: [] as string[],
+        })),
+      ]);
+
+      const merged = Array.from(
+        new Set<string>([
+          ...(r1.success ? r1.images : []),
+          ...(r2.success ? r2.images : []),
+        ]),
+      );
+
+      if (merged.length > 0) {
+        setImages(merged);
+      } else if (!r1.success && !r2.success) {
+        setDialog({
+          open: true,
+          title: "Something went wrong",
+          msg: r1.error || r2.error || "Both finders failed.",
+        });
+      } else {
         setDialog({
           open: true,
           title: "No images found",
-          msg:
-            mode === "primary"
-              ? "Try the alternative finder below."
-              : "We couldn't find any QC photos for this link.",
+          msg: "We couldn't find any QC photos for this link.",
         });
-      } else {
-        setImages(r.images);
       }
     } catch {
       setDialog({ open: true, title: "Server error", msg: "Please try again in a moment." });
     } finally {
-      setLoading(null);
+      setLoading(false);
     }
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    void run("primary");
   };
 
   return (
