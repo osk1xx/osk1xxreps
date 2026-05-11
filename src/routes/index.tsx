@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { findQcImages, findQcImagesViaTymix } from "@/lib/qc.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Search, ImageOff } from "lucide-react";
+import { Loader2, Search, ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -38,7 +38,22 @@ function Index() {
     title: "",
     msg: "",
   });
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const previewOpen = previewIndex !== null;
+  const showPrev = () =>
+    setPreviewIndex((i) => (i === null ? null : (i - 1 + images.length) % images.length));
+  const showNext = () =>
+    setPreviewIndex((i) => (i === null ? null : (i + 1) % images.length));
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") showPrev();
+      else if (e.key === "ArrowRight") showNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,10 +183,10 @@ function Index() {
               <span className="text-xs text-muted-foreground">{images.length} photos</span>
             </div>
             <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 [&>*]:mb-3">
-              {images.map((src) => (
+              {images.map((src, i) => (
                 <button
                   key={src}
-                  onClick={() => setPreview(src)}
+                  onClick={() => setPreviewIndex(i)}
                   className="group block w-full overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-foreground/30"
                 >
                   <img
@@ -210,10 +225,39 @@ function Index() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+      <Dialog open={previewOpen} onOpenChange={(o) => !o && setPreviewIndex(null)}>
         <DialogContent className="max-w-3xl border-border bg-card p-2">
-          {preview && (
-            <img src={preview} alt="QC preview" className="h-auto w-full rounded-lg" />
+          {previewIndex !== null && (
+            <div className="relative">
+              <img
+                src={images[previewIndex]}
+                alt="QC preview"
+                className="h-auto w-full rounded-lg"
+              />
+              {images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={showPrev}
+                    aria-label="Previous photo"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow backdrop-blur transition hover:bg-background"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={showNext}
+                    aria-label="Next photo"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 text-foreground shadow backdrop-blur transition hover:bg-background"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+                    {previewIndex + 1} / {images.length}
+                  </span>
+                </>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
