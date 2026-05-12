@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { findQcImages, findQcImagesViaTymix } from "@/lib/qc.functions";
+import {
+  findQcImages,
+  findQcImagesViaTymix,
+  findQcImagesViaRepworld,
+} from "@/lib/qc.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
