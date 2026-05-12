@@ -34,6 +34,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const find = useServerFn(findQcImages);
   const findAlt = useServerFn(findQcImagesViaTymix);
+  const findRep = useServerFn(findQcImagesViaRepworld);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
