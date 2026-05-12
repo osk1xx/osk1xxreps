@@ -140,6 +140,50 @@ const collectPhotos = (node: unknown, out: Set<string>) => {
   }
 };
 
+export const findQcImagesViaRepworld = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => InputSchema.parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const res = await fetch(
+        `https://api.repworld.pl/api/qc?url=${encodeURIComponent(data.url)}`,
+        {
+          headers: {
+            Referer: "https://www.repworld.pl/qcfinder",
+            Origin: "https://www.repworld.pl",
+            "User-Agent":
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+            Accept: "application/json,text/plain,*/*",
+          },
+        },
+      );
+
+      const text = await res.text();
+      let json: unknown = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        /* not JSON */
+      }
+
+      if (!res.ok) {
+        const err =
+          (json && typeof json === "object" && (json as any).error) ||
+          `Request failed (${res.status})`;
+        return { success: false as const, error: String(err), images: [] as string[] };
+      }
+
+      const out = new Set<string>();
+      collectPhotos(json, out);
+      return { success: true as const, images: Array.from(out), error: null };
+    } catch (e) {
+      return {
+        success: false as const,
+        error: e instanceof Error ? e.message : "Unknown error",
+        images: [] as string[],
+      };
+    }
+  });
+
 export const findQcImagesViaTymix = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => InputSchema.parse(d))
   .handler(async ({ data }) => {

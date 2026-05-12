@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { findQcImages, findQcImagesViaTymix } from "@/lib/qc.functions";
+import {
+  findQcImages,
+  findQcImagesViaTymix,
+  findQcImagesViaRepworld,
+} from "@/lib/qc.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +34,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const find = useServerFn(findQcImages);
   const findAlt = useServerFn(findQcImagesViaTymix);
+  const findRep = useServerFn(findQcImagesViaRepworld);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
@@ -61,33 +66,32 @@ function Index() {
     setLoading(true);
     setImages([]);
     try {
-      const [r1, r2] = await Promise.all([
-        find({ data: { url: url.trim() } }).catch((e) => ({
-          success: false as const,
-          error: e instanceof Error ? e.message : "Error",
-          images: [] as string[],
-        })),
-        findAlt({ data: { url: url.trim() } }).catch((e) => ({
-          success: false as const,
-          error: e instanceof Error ? e.message : "Error",
-          images: [] as string[],
-        })),
+      const fail = (e: unknown) => ({
+        success: false as const,
+        error: e instanceof Error ? e.message : "Error",
+        images: [] as string[],
+      });
+      const [r1, r2, r3] = await Promise.all([
+        find({ data: { url: url.trim() } }).catch(fail),
+        findAlt({ data: { url: url.trim() } }).catch(fail),
+        findRep({ data: { url: url.trim() } }).catch(fail),
       ]);
 
       const merged = Array.from(
         new Set<string>([
           ...(r1.success ? r1.images : []),
           ...(r2.success ? r2.images : []),
+          ...(r3.success ? r3.images : []),
         ]),
       );
 
       if (merged.length > 0) {
         setImages(merged);
-      } else if (!r1.success && !r2.success) {
+      } else if (!r1.success && !r2.success && !r3.success) {
         setDialog({
           open: true,
           title: "Something went wrong",
-          msg: r1.error || r2.error || "Both finders failed.",
+          msg: r1.error || r2.error || r3.error || "All finders failed.",
         });
       } else {
         setDialog({
