@@ -9,8 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrackingRouteImport } from './routes/tracking'
+import { Route as SizesRouteImport } from './routes/sizes'
+import { Route as QcRouteImport } from './routes/qc'
+import { Route as ProductsRouteImport } from './routes/products'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TrackingRoute = TrackingRouteImport.update({
+  id: '/tracking',
+  path: '/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SizesRoute = SizesRouteImport.update({
+  id: '/sizes',
+  path: '/sizes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QcRoute = QcRouteImport.update({
+  id: '/qc',
+  path: '/qc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +49,83 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/products': typeof ProductsRoute
+  '/qc': typeof QcRoute
+  '/sizes': typeof SizesRoute
+  '/tracking': typeof TrackingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/products': typeof ProductsRoute
+  '/qc': typeof QcRoute
+  '/sizes': typeof SizesRoute
+  '/tracking': typeof TrackingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/products': typeof ProductsRoute
+  '/qc': typeof QcRoute
+  '/sizes': typeof SizesRoute
+  '/tracking': typeof TrackingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
+  id: '__root__' | '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ProductsRoute: typeof ProductsRoute
+  QcRoute: typeof QcRoute
+  SizesRoute: typeof SizesRoute
+  TrackingRoute: typeof TrackingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tracking': {
+      id: '/tracking'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof TrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sizes': {
+      id: '/sizes'
+      path: '/sizes'
+      fullPath: '/sizes'
+      preLoaderRoute: typeof SizesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qc': {
+      id: '/qc'
+      path: '/qc'
+      fullPath: '/qc'
+      preLoaderRoute: typeof QcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +138,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ProductsRoute: ProductsRoute,
+  QcRoute: QcRoute,
+  SizesRoute: SizesRoute,
+  TrackingRoute: TrackingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
