@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SizesRouteImport } from './routes/sizes'
 import { Route as QcRouteImport } from './routes/qc'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrackingRoute = TrackingRouteImport.update({
@@ -29,6 +30,11 @@ const QcRoute = QcRouteImport.update({
   path: '/qc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/qc' | '/sizes' | '/tracking'
+  fullPaths: '/' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/qc' | '/sizes' | '/tracking'
-  id: '__root__' | '/' | '/qc' | '/sizes' | '/tracking'
+  to: '/' | '/products' | '/qc' | '/sizes' | '/tracking'
+  id: '__root__' | '/' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ProductsRoute: typeof ProductsRoute
   QcRoute: typeof QcRoute
   SizesRoute: typeof SizesRoute
   TrackingRoute: typeof TrackingRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QcRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ProductsRoute: ProductsRoute,
   QcRoute: QcRoute,
   SizesRoute: SizesRoute,
   TrackingRoute: TrackingRoute,
