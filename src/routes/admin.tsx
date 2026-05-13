@@ -30,6 +30,7 @@ function AdminPage() {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    // Check auth status from localStorage
     const stored = localStorage.getItem("admin_authed");
     setAuthed(stored === "true");
     setLoading(false);
@@ -39,8 +40,17 @@ function AdminPage() {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
   
-  if (!authed) return <Login onAuthed={() => { setAuthed(true); localStorage.setItem("admin_authed", "true"); }} />;
-  return <Dashboard onLogout={() => { setAuthed(false); localStorage.removeItem("admin_authed"); }} />;
+  if (!authed) {
+    return <Login onAuthed={() => { 
+      setAuthed(true); 
+      localStorage.setItem("admin_authed", "true");
+    }} />;
+  }
+  
+  return <Dashboard onLogout={() => { 
+    setAuthed(false); 
+    localStorage.removeItem("admin_authed");
+  }} />;
 }
 
 function Login({ onAuthed }: { onAuthed: () => void }) {
@@ -51,16 +61,18 @@ function Login({ onAuthed }: { onAuthed: () => void }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (busy) return;
+    if (busy || !u.trim() || !p.trim()) return;
     setBusy(true);
     try {
       const result = await validate({ data: { username: u.trim(), password: p } });
       if (result.valid) {
+        localStorage.setItem("admin_authed", "true");
         onAuthed();
       } else {
         toast.error("Invalid credentials");
       }
     } catch (err) {
+      console.error(err);
       toast.error("Authentication failed");
     } finally {
       setBusy(false);
@@ -84,11 +96,17 @@ function Login({ onAuthed }: { onAuthed: () => void }) {
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [tab, setTab] = useState<Tab>("products");
+  
+  const handleLogout = () => {
+    localStorage.removeItem("admin_authed");
+    onLogout();
+  };
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Admin panel</h1>
-        <Button variant="outline" onClick={onLogout}><LogOut className="mr-2 h-4 w-4" />Logout</Button>
+        <Button variant="outline" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Logout</Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
         {(["products", "chat", "settings"] as Tab[]).map((k) => (
