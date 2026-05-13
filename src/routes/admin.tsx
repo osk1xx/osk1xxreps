@@ -116,9 +116,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </button>
         ))}
       </div>
-      {tab === "products" && <ProductsTab />}
-      {tab === "chat" && <ChatTab />}
-      {tab === "settings" && <SettingsTab />}
+      <div>
+        {tab === "products" && <ProductsTab />}
+        {tab === "chat" && <ChatTab />}
+        {tab === "settings" && <SettingsTab />}
+      </div>
     </main>
   );
 }
@@ -132,12 +134,22 @@ function ProductsTab() {
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ category: CATEGORIES[0], name: "", url: "" });
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
-    const r = await list();
-    setItems(r.products);
+    try {
+      setLoadError(null);
+      const r = await list();
+      setItems(r.products);
+    } catch (e: any) {
+      console.error("Failed to load products:", e);
+      setLoadError("Failed to load products");
+    }
   };
-  useEffect(() => { refresh(); }, []);
+
+  useEffect(() => { 
+    refresh();
+  }, []);
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,6 +164,15 @@ function ProductsTab() {
       toast.error(e.message || "Failed");
     } finally { setBusy(false); }
   };
+
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-destructive/50 bg-card p-6 text-center">
+        <p className="text-destructive font-semibold mb-4">{loadError}</p>
+        <Button onClick={refresh}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -211,13 +232,25 @@ function ChatTab() {
   const [msgs, setMsgs] = useState<any[]>([]);
   const [active, setActive] = useState<string | null>(null);
   const [text, setText] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
-    const r = await list();
-    setMsgs(r.messages);
-    if (!active && r.messages.length) setActive(r.messages[0].browser_id);
+    try {
+      setLoadError(null);
+      const r = await list();
+      setMsgs(r.messages);
+      if (!active && r.messages.length) setActive(r.messages[0].browser_id);
+    } catch (e: any) {
+      console.error("Failed to load chat:", e);
+      setLoadError("Failed to load chat");
+    }
   };
-  useEffect(() => { refresh(); const id = setInterval(refresh, 5000); return () => clearInterval(id); }, []);
+
+  useEffect(() => { 
+    refresh(); 
+    const id = setInterval(refresh, 5000); 
+    return () => clearInterval(id); 
+  }, []);
 
   const threads = Array.from(new Set(msgs.map((m) => m.browser_id)));
   const thread = msgs.filter((m) => m.browser_id === active);
@@ -229,6 +262,15 @@ function ChatTab() {
     setText("");
     refresh();
   };
+
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-destructive/50 bg-card p-6 text-center">
+        <p className="text-destructive font-semibold mb-4">{loadError}</p>
+        <Button onClick={refresh}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
@@ -268,13 +310,30 @@ function SettingsTab() {
   const get = useServerFn(getAppSettings);
   const upd = useServerFn(adminUpdateSettings);
   const [s, setS] = useState({ disable_products: false, critical_alert: false });
-  useEffect(() => { get().then(setS).catch(() => {}); }, []);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => { 
+    get()
+      .then(setS)
+      .catch((e: any) => {
+        console.error("Failed to load settings:", e);
+        setLoadError("Failed to load settings");
+      });
+  }, []);
 
   const toggle = async (k: "disable_products" | "critical_alert", v: boolean) => {
     setS((p) => ({ ...p, [k]: v }));
     try { await upd({ data: { [k]: v } }); toast.success("Saved"); }
     catch { toast.error("Failed"); setS((p) => ({ ...p, [k]: !v })); }
   };
+
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-destructive/50 bg-card p-6 text-center">
+        <p className="text-destructive font-semibold">{loadError}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 max-w-xl">
