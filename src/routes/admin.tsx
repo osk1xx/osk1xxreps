@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { ensureAdminUser, ADMIN_EMAIL } from "@/lib/admin-auth.functions";
+import { validateAdminCredentials } from "@/lib/admin-auth.functions";
 import {
   CATEGORIES,
   adminListProducts,
@@ -27,46 +26,42 @@ export const Route = createFileRoute("/admin")({
 type Tab = "products" | "chat" | "settings";
 
 function AdminPage() {
-  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [authed, setAuthed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setAuthed(!!s));
-    return () => sub.subscription.unsubscribe();
+    const stored = localStorage.getItem("admin_authed");
+    setAuthed(stored === "true");
+    setLoading(false);
   }, []);
 
-  if (authed === null) {
+  if (loading) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
-  if (!authed) return <Login onAuthed={() => setAuthed(true)} />;
-  return <Dashboard onLogout={async () => { await supabase.auth.signOut(); setAuthed(false); }} />;
+  
+  if (!authed) return <Login onAuthed={() => { setAuthed(true); localStorage.setItem("admin_authed", "true"); }} />;
+  return <Dashboard onLogout={() => { setAuthed(false); localStorage.removeItem("admin_authed"); }} />;
 }
 
 function Login({ onAuthed }: { onAuthed: () => void }) {
   const [u, setU] = useState("");
   const [p, setP] = useState("");
   const [busy, setBusy] = useState(false);
-  const ensure = useServerFn(ensureAdminUser);
+  const validate = useServerFn(validateAdminCredentials);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
     setBusy(true);
     try {
-      // Map "admin" username to internal email
-      const email = u.trim().toLowerCase() === "admin" ? ADMIN_EMAIL : u.trim();
-      // Try sign-in first
-      let { error } = await supabase.auth.signInWithPassword({ email, password: p });
-      if (error && email === ADMIN_EMAIL) {
-        // Bootstrap and retry
-        await ensure({ data: { password: p } });
-        const r = await supabase.auth.signInWithPassword({ email, password: p });
-        error = r.error;
-      }
-      if (error) {
-        toast.error("Invalid credentials");
-      } else {
+      const result = await validate({ data: { username: u.trim(), password: p } });
+      if (result.valid) {
         onAuthed();
+      } else {
+        toast.error("Invalid credentials");
       }
+    } catch (err) {
+      toast.error("Authentication failed");
     } finally {
       setBusy(false);
     }
