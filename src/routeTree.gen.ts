@@ -13,6 +13,7 @@ import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SizesRouteImport } from './routes/sizes'
 import { Route as QcRouteImport } from './routes/qc'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrackingRoute = TrackingRouteImport.update({
@@ -35,6 +36,11 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/products': typeof ProductsRoute
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
@@ -65,14 +74,15 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/products' | '/qc' | '/sizes' | '/tracking'
+  fullPaths: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/products' | '/qc' | '/sizes' | '/tracking'
-  id: '__root__' | '/' | '/products' | '/qc' | '/sizes' | '/tracking'
+  to: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
+  id: '__root__' | '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ProductsRoute: typeof ProductsRoute
   QcRoute: typeof QcRoute
   SizesRoute: typeof SizesRoute
@@ -109,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,6 +138,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ProductsRoute: ProductsRoute,
   QcRoute: QcRoute,
   SizesRoute: SizesRoute,

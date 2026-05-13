@@ -7,6 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Navbar } from "@/components/site/Navbar";
+import { ChatWidget } from "@/components/site/ChatWidget";
+import { LanguageModal } from "@/components/site/LanguageModal";
+import { PromoPopup } from "@/components/site/PromoPopup";
+import { CriticalAlertModal } from "@/components/site/CriticalAlertModal";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -117,7 +123,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="min-h-screen bg-background text-foreground">
+        <Navbar />
+        <Outlet />
+        <ChatWidget />
+        <LanguageModal />
+        <PromoPopup />
+        <CriticalAlertModal />
+        <Toaster />
+      </div>
     </QueryClientProvider>
   );
 }
