@@ -2,8 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 // Static admin credentials
-const ADMIN_USERNAME = "adminosk";
-const ADMIN_PASSWORD = "Andzis<3";
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "repslove2102";
 
 // Validates admin credentials
 export const validateAdminCredentials = createServerFn({ method: "POST" })

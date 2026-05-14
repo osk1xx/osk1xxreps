@@ -76,11 +76,11 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.12 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.7 0.25 295);
+  --primary: oklch(0.985 0 0);
   --primary-foreground: oklch(0.06 0 0);
-  --primary-glow: oklch(0.78 0.22 295);
-  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --shadow-glow: 0 0 40px -10px color-mix(in oklab, var(--primary) 60%, transparent);
+  --primary-glow: oklch(0.95 0 0);
+  --gradient-primary: linear-gradient(135deg, oklch(0.985 0 0), oklch(0.75 0 0));
+  --shadow-glow: 0 0 40px -10px oklch(1 0 0 / 25%);
   --secondary: oklch(0.16 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.16 0 0);
