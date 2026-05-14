@@ -1,60 +1,57 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertAdmin } from "./admin-guard.server";
 
-const browserId = z.string().min(8).max(64).regex(/^[a-zA-Z0-9_-]+$/);
-
-export const sendUserMessage = createServerFn({ method: "POST" })
+export const submitContactMessage = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z
-      .object({ browserId, body: z.string().min(1).max(2000) })
+      .object({
+        email: z.string().trim().email().max(255),
+        body: z.string().trim().min(1).max(2000),
+      })
       .parse(input),
   )
   .handler(async ({ data }) => {
     const { error } = await supabaseAdmin.from("chat_messages").insert({
-      browser_id: data.browserId,
+      browser_id: "contact",
       role: "user",
+      email: data.email,
       body: data.body,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-export const listMyMessages = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ browserId }).parse(input))
+export const adminListMessages = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z.object({ adminKey: z.string().min(1).max(128) }).parse(input),
+  )
   .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
     const { data: rows, error } = await supabaseAdmin
       .from("chat_messages")
       .select("*")
-      .eq("browser_id", data.browserId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return { messages: rows ?? [] };
   });
 
-export const adminListThreads = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("chat_messages")
-      .select("*")
-      .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
-    return { messages: data ?? [] };
-  });
-
-export const adminReply = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+export const adminDeleteMessage = createServerFn({ method: "POST" })
   .inputValidator((input) =>
-    z.object({ browserId, body: z.string().min(1).max(2000) }).parse(input),
+    z
+      .object({
+        adminKey: z.string().min(1).max(128),
+        id: z.string().uuid(),
+      })
+      .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("chat_messages").insert({
-      browser_id: data.browserId,
-      role: "admin",
-      body: data.body,
-    });
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
+    const { error } = await supabaseAdmin
+      .from("chat_messages")
+      .delete()
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -40,6 +40,7 @@ export type Database = {
           body: string
           browser_id: string
           created_at: string
+          email: string | null
           id: string
           role: string
         }
@@ -47,6 +48,7 @@ export type Database = {
           body: string
           browser_id: string
           created_at?: string
+          email?: string | null
           id?: string
           role: string
         }
@@ -54,6 +56,7 @@ export type Database = {
           body?: string
           browser_id?: string
           created_at?: string
+          email?: string | null
           id?: string
           role?: string
         }
