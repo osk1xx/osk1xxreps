@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertAdmin } from "./admin-guard.server";
 import { extractImage, extractPriceCNY, fetchPage } from "./scrape.server";
 
 export const CATEGORIES = [
@@ -14,11 +14,11 @@ export const CATEGORIES = [
   "Bags",
 ] as const;
 
+const adminKey = z.string().min(1).max(128);
+
 export const listApprovedProducts = createServerFn({ method: "POST" })
   .inputValidator((input) =>
-    z
-      .object({ category: z.string().optional() })
-      .parse(input ?? {}),
+    z.object({ category: z.string().optional() }).parse(input ?? {}),
   )
   .handler(async ({ data }) => {
     let q = supabaseAdmin
@@ -33,28 +33,30 @@ export const listApprovedProducts = createServerFn({ method: "POST" })
   });
 
 export const adminListProducts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+  .inputValidator((input) => z.object({ adminKey }).parse(input))
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
+    const { data: rows, error } = await supabaseAdmin
       .from("products")
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return { products: data ?? [] };
+    return { products: rows ?? [] };
   });
 
 export const adminCreateDraft = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z
       .object({
+        adminKey,
         category: z.string().min(1).max(64),
         name: z.string().min(1).max(200),
         url: z.string().url().max(2000),
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
     let image_url: string | null = null;
     let price_cny: number | null = null;
     const html = await fetchPage(data.url);
@@ -62,7 +64,7 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
       image_url = extractImage(html, data.url);
       price_cny = extractPriceCNY(html);
     }
-    const { data: row, error } = await context.supabase
+    const { data: row, error } = await supabaseAdmin
       .from("products")
       .insert({
         category: data.category,
@@ -79,10 +81,10 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
   });
 
 export const adminUpdateProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z
       .object({
+        adminKey,
         id: z.string().uuid(),
         category: z.string().min(1).max(64).optional(),
         name: z.string().min(1).max(200).optional(),
@@ -91,9 +93,10 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { id, ...patch } = data;
-    const { error } = await context.supabase
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
+    const { adminKey: _k, id, ...patch } = data;
+    const { error } = await supabaseAdmin
       .from("products")
       .update({ ...patch, updated_at: new Date().toISOString() })
       .eq("id", id);
@@ -102,10 +105,12 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
   });
 
 export const adminApproveProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+  .inputValidator((input) =>
+    z.object({ adminKey, id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
+    const { error } = await supabaseAdmin
       .from("products")
       .update({ status: "approved", updated_at: new Date().toISOString() })
       .eq("id", data.id);
@@ -114,10 +119,12 @@ export const adminApproveProduct = createServerFn({ method: "POST" })
   });
 
 export const adminDeleteProduct = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("products").delete().eq("id", data.id);
+  .inputValidator((input) =>
+    z.object({ adminKey, id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    assertAdmin(data.adminKey);
+    const { error } = await supabaseAdmin.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
