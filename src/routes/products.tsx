@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { listApprovedProducts, CATEGORIES } from "@/lib/products.functions";
 import { getAppSettings } from "@/lib/settings.functions";
-import { useLang, t, useCurrency, formatPrice, CURRENCY_SYMBOL } from "@/lib/i18n";
+import { useLang, t, useCurrency, formatPrice } from "@/lib/i18n";
 import { toAgentLink } from "@/lib/agent-link";
 import { Loader2, ExternalLink, ImageOff } from "lucide-react";
 import { toast } from "sonner";
