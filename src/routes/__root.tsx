@@ -8,7 +8,6 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Navbar } from "@/components/site/Navbar";
-import { ChatWidget } from "@/components/site/ChatWidget";
 import { LanguageModal } from "@/components/site/LanguageModal";
 import { PromoPopup } from "@/components/site/PromoPopup";
 import { CriticalAlertModal } from "@/components/site/CriticalAlertModal";
@@ -126,7 +125,6 @@ function RootComponent() {
       <div className="min-h-screen bg-background text-foreground">
         <Navbar />
         <Outlet />
-        <ChatWidget />
         <LanguageModal />
         <PromoPopup />
         <CriticalAlertModal />

@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 import { getAppSettings } from "@/lib/settings.functions";
 import { t, useLang } from "@/lib/i18n";
 
-const SESSION_KEY = "osk:alertDismissed";
+const SESSION_KEY = "osk:alertDismissedUidbuy";
 
 export function CriticalAlertModal() {
   const loc = useLocation();

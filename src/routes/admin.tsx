@@ -10,12 +10,11 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/products.functions";
-import { adminListMessages, adminDeleteMessage } from "@/lib/chat.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2, Mail } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
@@ -25,7 +24,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — osk1xx reps" }] }),
 });
 
-type Tab = "products" | "messages" | "settings";
+type Tab = "products" | "settings";
 
 function getKey(): string | null {
   if (typeof window === "undefined") return null;
@@ -117,7 +116,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
-        {(["products", "messages", "settings"] as Tab[]).map((k) => (
+        {(["products", "settings"] as Tab[]).map((k) => (
           <button
             key={k}
             onClick={() => setTab(k)}
@@ -133,7 +132,6 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       </div>
       <div>
         {tab === "products" && <ProductsTab />}
-        {tab === "messages" && <MessagesTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
     </main>
@@ -328,82 +326,6 @@ function ProductsTab() {
   );
 }
 
-function MessagesTab() {
-  const list = useServerFn(adminListMessages);
-  const del = useServerFn(adminDeleteMessage);
-  const [msgs, setMsgs] = useState<any[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  const refresh = async () => {
-    try {
-      setLoadError(null);
-      const r = await list({ data: { adminKey: getKey() ?? "" } });
-      setMsgs(r.messages);
-    } catch (e: any) {
-      console.error(e);
-      setLoadError("Failed to load messages");
-    }
-  };
-
-  useEffect(() => {
-    refresh();
-    const id = setInterval(refresh, 10000);
-    return () => clearInterval(id);
-  }, []);
-
-  const close = async (id: string) => {
-    if (!confirm("Close (delete) this message?")) return;
-    try {
-      await del({ data: { id, adminKey: getKey() ?? "" } });
-      setMsgs((m) => m.filter((x) => x.id !== id));
-      toast.success("Closed");
-    } catch (e: any) {
-      toast.error(e.message || "Failed");
-    }
-  };
-
-  if (loadError) {
-    return (
-      <div className="rounded-2xl border border-destructive/50 bg-card p-6 text-center">
-        <p className="mb-4 font-semibold text-destructive">{loadError}</p>
-        <Button onClick={refresh}>Retry</Button>
-      </div>
-    );
-  }
-
-  if (msgs.length === 0) {
-    return <p className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">No messages yet.</p>;
-  }
-
-  return (
-    <div className="space-y-3">
-      {msgs.map((m) => (
-        <div key={m.id} className="rounded-2xl border border-border bg-card p-4">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <a
-              href={m.email ? `mailto:${m.email}` : undefined}
-              className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-            >
-              <Mail className="h-4 w-4" />
-              {m.email || "(no email)"}
-            </a>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">
-                {new Date(m.created_at).toLocaleString()}
-              </span>
-              <Button size="sm" variant="destructive" onClick={() => close(m.id)}>
-                <Trash2 className="mr-1 h-3 w-3" />
-                Close
-              </Button>
-            </div>
-          </div>
-          <p className="whitespace-pre-wrap text-sm text-foreground">{m.body}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function SettingsTab() {
   const get = useServerFn(getAppSettings);
   const upd = useServerFn(adminUpdateSettings);
@@ -453,7 +375,7 @@ function SettingsTab() {
         <div>
           <h3 className="font-medium text-destructive">Critical Alert Mode</h3>
           <p className="text-xs text-muted-foreground">
-            Disables products + promo, hides "register for prizes", shows USFans warning everywhere.
+            Disables products + promo, hides "register for prizes", shows UIDBUY warning everywhere.
           </p>
         </div>
         <Switch checked={s.critical_alert} onCheckedChange={(v) => toggle("critical_alert", v)} />

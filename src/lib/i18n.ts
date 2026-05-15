@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 
 export type Lang = "en" | "pl";
+export type Currency = "CNY" | "PLN" | "USD" | "EUR";
 
 const LANG_KEY = "osk:lang";
-const EVT = "osk:lang-change";
+const CUR_KEY = "osk:currency";
+const LANG_EVT = "osk:lang-change";
+const CUR_EVT = "osk:cur-change";
 
 export function getStoredLang(): Lang | null {
   if (typeof window === "undefined") return null;
@@ -14,7 +17,7 @@ export function getStoredLang(): Lang | null {
 export function setStoredLang(l: Lang) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(LANG_KEY, l);
-  window.dispatchEvent(new CustomEvent(EVT));
+  window.dispatchEvent(new CustomEvent(LANG_EVT));
 }
 
 export function useLang(): [Lang, (l: Lang) => void] {
@@ -22,14 +25,64 @@ export function useLang(): [Lang, (l: Lang) => void] {
   useEffect(() => {
     const sync = () => setLang(getStoredLang() ?? "en");
     sync();
-    window.addEventListener(EVT, sync);
+    window.addEventListener(LANG_EVT, sync);
     window.addEventListener("storage", sync);
     return () => {
-      window.removeEventListener(EVT, sync);
+      window.removeEventListener(LANG_EVT, sync);
       window.removeEventListener("storage", sync);
     };
   }, []);
   return [lang, setStoredLang];
+}
+
+// Currency. Conversion rates relative to 1 CNY.
+export const CNY_RATES: Record<Currency, number> = {
+  CNY: 1,
+  PLN: 0.55,
+  EUR: 0.13,
+  USD: 0.15,
+};
+
+export const CURRENCY_SYMBOL: Record<Currency, string> = {
+  CNY: "¥",
+  PLN: "zł",
+  EUR: "€",
+  USD: "$",
+};
+
+function getStoredCurrency(): Currency {
+  if (typeof window === "undefined") return "CNY";
+  const v = window.localStorage.getItem(CUR_KEY);
+  return v === "CNY" || v === "PLN" || v === "USD" || v === "EUR" ? v : "CNY";
+}
+
+export function setStoredCurrency(c: Currency) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(CUR_KEY, c);
+  window.dispatchEvent(new CustomEvent(CUR_EVT));
+}
+
+export function useCurrency(): [Currency, (c: Currency) => void] {
+  const [cur, setCur] = useState<Currency>("CNY");
+  useEffect(() => {
+    const sync = () => setCur(getStoredCurrency());
+    sync();
+    window.addEventListener(CUR_EVT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(CUR_EVT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  return [cur, setStoredCurrency];
+}
+
+export function formatPrice(priceCNY: number | null | undefined, cur: Currency): string {
+  if (priceCNY == null) return "—";
+  const v = priceCNY * CNY_RATES[cur];
+  const sym = CURRENCY_SYMBOL[cur];
+  const formatted = v >= 100 ? v.toFixed(0) : v.toFixed(2);
+  return cur === "PLN" ? `${formatted} ${sym}` : `${sym}${formatted}`;
 }
 
 export const t = {
@@ -44,16 +97,10 @@ export const t = {
     home: {
       title: "OSK1XX REPS – FIND. CHECK. WEAR.",
       sub: "The plug for the rep game. Fastest QC photos, curated picks, no cap.",
-      qc: "SPRAWDŹ QC",
-      products: "PRODUKTY",
-      tracking: "ŚLEDZENIE PRZESYŁKI",
+      qc: "FIND QC",
+      products: "PRODUCTS",
+      tracking: "TRACKING",
       adminLogin: "Admin Panel Login",
-    },
-    chat: {
-      title: "Live support",
-      placeholder: "Type a message…",
-      send: "Send",
-      empty: "Say hi — we usually reply fast.",
     },
     tracking: {
       title: "Track your parcel",
@@ -64,6 +111,11 @@ export const t = {
     sizes: {
       title: "Size Guide",
       sub: "How to size your reps — from Yeezys to Balenciaga.",
+      labels: {
+        "All Yeezys": "All Yeezys",
+        "Football boots": "Football boots",
+        "All other shoes": "All other shoes",
+      },
     },
     products: {
       title: "Products",
@@ -71,10 +123,12 @@ export const t = {
       total: "items",
       empty: "No products in this category yet.",
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
+      all: "All",
+      currency: "Currency",
     },
     alert: {
       title: "CRITICAL ALERT",
-      body: "USFANS IS NOT A TRUSTWORTHY AGENT ANYMORE.\n\nPLEASE DO NOT USE USFANS.\n\nQC PHOTOS / TRACKING / SIZE GUIDE WORK NORMALLY.\n\nPLEASE WAIT UNTIL UPDATES FROM ME!",
+      body: "UIDBUY IS NOT A TRUSTWORTHY AGENT ANYMORE.\n\nPLEASE DO NOT USE UIDBUY.\n\nQC PHOTOS / TRACKING / SIZE GUIDE WORK NORMALLY.\n\nPLEASE WAIT UNTIL UPDATES FROM ME!",
       ack: "Got it",
     },
     langPick: "Choose your language",
@@ -96,12 +150,6 @@ export const t = {
       tracking: "ŚLEDZENIE PRZESYŁKI",
       adminLogin: "Logowanie do panelu admina",
     },
-    chat: {
-      title: "Czat na żywo",
-      placeholder: "Napisz wiadomość…",
-      send: "Wyślij",
-      empty: "Napisz do nas — zwykle szybko odpowiadamy.",
-    },
     tracking: {
       title: "Śledź paczkę",
       sub: "Wpisz numer trackingu — otworzymy go w 17track.",
@@ -111,6 +159,11 @@ export const t = {
     sizes: {
       title: "Rozmiarówka",
       sub: "Jak dobrać rozmiar repa — od Yeezy po Balenciagę.",
+      labels: {
+        "All Yeezys": "Wszystkie Yeezy",
+        "Football boots": "Korki piłkarskie",
+        "All other shoes": "Wszystkie inne buty",
+      },
     },
     products: {
       title: "Produkty",
@@ -118,10 +171,12 @@ export const t = {
       total: "produktów",
       empty: "Brak produktów w tej kategorii.",
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
+      all: "Wszystkie",
+      currency: "Waluta",
     },
     alert: {
       title: "PILNE OSTRZEŻENIE",
-      body: "USFANS NIE JEST JUŻ ZAUFANYM AGENTEM.\n\nPROSZĘ NIE UŻYWAJCIE USFANS.\n\nZDJĘCIA QC / ŚLEDZENIE / ROZMIARÓWKA DZIAŁAJĄ NORMALNIE.\n\nPOCZEKAJCIE NA AKTUALIZACJE OD MNIE!",
+      body: "UIDBUY NIE JEST JUŻ ZAUFANYM AGENTEM.\n\nPROSZĘ NIE UŻYWAJCIE UIDBUY.\n\nZDJĘCIA QC / ŚLEDZENIE / ROZMIARÓWKA DZIAŁAJĄ NORMALNIE.\n\nPOCZEKAJCIE NA AKTUALIZACJE OD MNIE!",
       ack: "Rozumiem",
     },
     langPick: "Wybierz język",

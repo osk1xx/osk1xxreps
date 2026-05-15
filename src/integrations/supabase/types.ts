@@ -35,33 +35,6 @@ export type Database = {
         }
         Relationships: []
       }
-      chat_messages: {
-        Row: {
-          body: string
-          browser_id: string
-          created_at: string
-          email: string | null
-          id: string
-          role: string
-        }
-        Insert: {
-          body: string
-          browser_id: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          role: string
-        }
-        Update: {
-          body?: string
-          browser_id?: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          role?: string
-        }
-        Relationships: []
-      }
       products: {
         Row: {
           category: string
