@@ -3,6 +3,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertAdmin } from "./admin-guard.server";
 import { extractImage, extractPriceCNY, fetchPage } from "./scrape.server";
+import { toAgentLink } from "./agent-link";
 
 export const CATEGORIES = [
   "Shoes",
@@ -59,10 +60,15 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
     assertAdmin(data.adminKey);
     let image_url: string | null = null;
     let price_cny: number | null = null;
-    const html = await fetchPage(data.url);
-    if (html) {
-      image_url = extractImage(html, data.url);
-      price_cny = extractPriceCNY(html);
+    // Try the converted agent (UIDBUY) page first — it has clean og:image + price.
+    const agentUrl = toAgentLink(data.url);
+    const tryUrls = agentUrl !== data.url ? [agentUrl, data.url] : [data.url];
+    for (const u of tryUrls) {
+      const html = await fetchPage(u);
+      if (!html) continue;
+      if (!image_url) image_url = extractImage(html, u);
+      if (price_cny == null) price_cny = extractPriceCNY(html);
+      if (image_url && price_cny != null) break;
     }
     const { data: row, error } = await supabaseAdmin
       .from("products")
