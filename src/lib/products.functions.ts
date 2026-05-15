@@ -58,17 +58,15 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     assertAdmin(data.adminKey);
-    let image_url: string | null = null;
     let price_cny: number | null = null;
-    // Try the converted agent (UIDBUY) page first — it has clean og:image + price.
+    // Scan both the agent page and the original seller page; keep the lowest price.
     const agentUrl = toAgentLink(data.url);
     const tryUrls = agentUrl !== data.url ? [agentUrl, data.url] : [data.url];
     for (const u of tryUrls) {
       const html = await fetchPage(u);
       if (!html) continue;
-      if (!image_url) image_url = extractImage(html, u);
-      if (price_cny == null) price_cny = extractPriceCNY(html);
-      if (image_url && price_cny != null) break;
+      const p = extractPriceCNY(html);
+      if (p != null && (price_cny == null || p < price_cny)) price_cny = p;
     }
     const { data: row, error } = await supabaseAdmin
       .from("products")
