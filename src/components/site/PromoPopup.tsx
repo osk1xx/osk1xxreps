@@ -6,8 +6,8 @@ import { Gift } from "lucide-react";
 import { getAppSettings } from "@/lib/settings.functions";
 import { useLang } from "@/lib/i18n";
 
-const USFANS_URL = "https://www.usfans.com/register?ref=YMCNSE";
-const SEEN_KEY = "osk:promoSeen";
+const UIDBUY_URL = "https://uidbuy.com/register?ref=LZU8AH";
+const SEEN_KEY = "osk:promoSeenUidbuy";
 
 export function PromoPopup() {
   const loc = useLocation();
@@ -25,7 +25,7 @@ export function PromoPopup() {
       try {
         const s = await getSettings();
         if (cancelled) return;
-        if (s.critical_alert) return; // suppressed by emergency
+        if (s.critical_alert) return;
         setOpen(true);
       } catch {
         if (!cancelled) setOpen(true);
@@ -61,24 +61,26 @@ export function PromoPopup() {
           </div>
           <DialogHeader className="mt-3">
             <DialogTitle className="text-2xl font-semibold tracking-tight">
-              {en ? "30% OFF shipping + $300 in coupons" : "30% RABATU na wysyłkę + 300$ w kuponach"}
+              {en
+                ? "35% OFF shipping for 6 months + unlimited 25% coupons"
+                : "35% RABATU na wysyłkę przez 6 miesięcy + nielimitowane kupony 25%"}
             </DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-relaxed">
               {en
-                ? "USFans is the cheapest and fastest Chinese shipping agent. Lower fees, faster QC, faster shipping — and right now new users get an exclusive welcome bundle."
-                : "USFans to najtańszy i najszybszy chiński agent wysyłkowy. Niższe opłaty, szybsze QC, szybsza wysyłka — a teraz nowi użytkownicy dostają ekskluzywny pakiet powitalny."}
+                ? "UIDBUY is the new cheapest and fastest Chinese shipping agent. Lower fees, faster QC, faster shipping. New users get 35% off shipping valid for 6 months — plus an unlimited 25% off coupon you can collect every day."
+                : "UIDBUY to nowy, najtańszy i najszybszy chiński agent wysyłkowy. Niższe opłaty, szybsze QC, szybsza wysyłka. Nowi użytkownicy dostają 35% rabatu na wysyłkę ważne przez 6 miesięcy — plus nielimitowany kupon 25% do odbioru codziennie."}
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded-full border border-border px-2 py-1">USFans</span>
+            <span className="rounded-full border border-border px-2 py-1">UIDBUY</span>
             <span>·</span>
             <span>{en ? "Cheapest · Fastest · Trusted" : "Najtaniej · Najszybciej · Zaufanie"}</span>
           </div>
 
           <div className="mt-6 flex flex-col gap-2">
             <a
-              href={USFANS_URL}
+              href={UIDBUY_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}

@@ -11,17 +11,30 @@ export const Route = createFileRoute("/sizes")({
   }),
 });
 
+// Items: shoe model names stay in English. Generic labels are translated via i18n.
 const RULES = [
   { tag: "+1.5", color: "from-fuchsia-500 to-purple-600", items: ["Yeezy Slides", "Yeezy Runner"] },
   { tag: "+1", color: "from-purple-500 to-indigo-600", items: ["All Yeezys", "Football boots"] },
   { tag: "+0.5", color: "from-indigo-500 to-sky-500", items: ["Air Force 1", "Jordan 1 Low"] },
   { tag: "TTS", color: "from-emerald-500 to-teal-500", items: ["All other shoes"] },
-  { tag: "−1", color: "from-amber-500 to-rose-500", items: ["LV Trainer", "Balenciaga Track", "Timberland", "Balenciaga Spike Boots", "Balenciaga Defender"] },
+  {
+    tag: "−1",
+    color: "from-amber-500 to-rose-500",
+    items: [
+      "LV Trainer",
+      "Balenciaga Track",
+      "Timberland",
+      "Balenciaga Spike Boots",
+      "Balenciaga Strike Boots",
+      "Balenciaga Defender",
+    ],
+  },
 ];
 
 function SizesPage() {
   const [lang] = useLang();
   const tr = t[lang].sizes;
+  const labels = tr.labels as Record<string, string>;
   return (
     <main className="mx-auto max-w-3xl px-6 pt-12 pb-24">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{tr.title}</h1>
@@ -35,7 +48,9 @@ function SizesPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {r.items.map((it) => (
-                <span key={it} className="rounded-full border border-border bg-background px-3 py-1 text-xs text-foreground">{it}</span>
+                <span key={it} className="rounded-full border border-border bg-background px-3 py-1 text-xs text-foreground">
+                  {labels[it] ?? it}
+                </span>
               ))}
             </div>
           </div>
