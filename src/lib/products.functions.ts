@@ -90,6 +90,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
         name: z.string().min(1).max(200).optional(),
         image_url: z.string().url().nullable().optional(),
         price_cny: z.number().nullable().optional(),
+        badge: z.enum(["best", "budget"]).nullable().optional(),
       })
       .parse(input),
   )

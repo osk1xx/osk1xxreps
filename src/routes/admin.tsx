@@ -293,6 +293,21 @@ function ProductsTab() {
                   })
                 }
               />
+              <select
+                className="h-8 rounded-md border border-border bg-background px-2 text-xs"
+                value={p.badge ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value || null;
+                  setItems((it) => it.map((x) => (x.id === p.id ? { ...x, badge: v } : x)));
+                  update({ data: { id: p.id, badge: v as any, adminKey: getKey() ?? "" } })
+                    .then(() => toast.success("Badge saved"))
+                    .catch(() => toast.error("Failed"));
+                }}
+              >
+                <option value="">No badge</option>
+                <option value="best">Best Batch (green)</option>
+                <option value="budget">Budget Batch (yellow)</option>
+              </select>
               <div className="mt-1 flex gap-2">
                 {p.status !== "approved" && (
                   <Button
