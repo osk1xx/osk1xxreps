@@ -74,7 +74,7 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
         category: data.category,
         name: data.name,
         source_url: data.url,
-        image_url,
+        image_url: null,
         price_cny,
         status: "draft",
       })
