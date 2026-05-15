@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertAdmin } from "./admin-guard.server";
-import { extractImage, extractPriceCNY, fetchPage } from "./scrape.server";
+import { extractPriceCNY, fetchPage } from "./scrape.server";
 import { toAgentLink } from "./agent-link";
 
 export const CATEGORIES = [
