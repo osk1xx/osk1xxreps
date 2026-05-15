@@ -32,45 +32,31 @@ export function extractImage(html: string, baseUrl: string): string | null {
   return null;
 }
 
-// Extracts a price in Chinese yuan (CNY). Tries the most reliable patterns first.
+// Extracts the LOWEST plausible CNY price found on the page.
+// Scans every yuan-marked occurrence and returns the smallest value.
 export function extractPriceCNY(html: string): number | null {
   const candidates: number[] = [];
   const push = (raw: string) => {
-    const n = Number(raw);
-    if (!Number.isNaN(n) && n > 0 && n < 1_000_000) candidates.push(n);
+    const n = Number(raw.replace(",", "."));
+    if (!Number.isNaN(n) && n >= 1 && n < 1_000_000) candidates.push(n);
   };
 
-  // 1. Currency-symbol-prefixed patterns (most reliable)
-  const symPatterns = [
+  const patterns = [
     /¥\s*(\d+(?:[.,]\d+)?)/g,
     /￥\s*(\d+(?:[.,]\d+)?)/g,
     /(\d+(?:[.,]\d+)?)\s*元/g,
     /CNY\s*(\d+(?:[.,]\d+)?)/gi,
     /RMB\s*(\d+(?:[.,]\d+)?)/gi,
     /人民币\s*(\d+(?:[.,]\d+)?)/g,
+    /["'](?:price|salePrice|shop_price|current_price|min_price|priceMin)["']\s*[:=]\s*["']?(\d+(?:\.\d+)?)/gi,
   ];
-  for (const re of symPatterns) {
+  for (const re of patterns) {
     let m: RegExpExecArray | null;
-    while ((m = re.exec(html))) push(m[1].replace(",", "."));
-    if (candidates.length) return candidates[0];
+    while ((m = re.exec(html))) push(m[1]);
   }
 
-  // 2. JSON-style price keys
-  const jsonPatterns = [
-    /["']price["']\s*[:=]\s*["']?(\d+(?:\.\d+)?)/i,
-    /["']salePrice["']\s*[:=]\s*["']?(\d+(?:\.\d+)?)/i,
-    /["']shop_price["']\s*[:=]\s*["']?(\d+(?:\.\d+)?)/i,
-    /["']current_price["']\s*[:=]\s*["']?(\d+(?:\.\d+)?)/i,
-  ];
-  for (const re of jsonPatterns) {
-    const m = html.match(re);
-    if (m?.[1]) {
-      push(m[1]);
-      if (candidates.length) return candidates[0];
-    }
-  }
-
-  return null;
+  if (!candidates.length) return null;
+  return Math.min(...candidates);
 }
 
 function absolutize(src: string, base: string): string {
