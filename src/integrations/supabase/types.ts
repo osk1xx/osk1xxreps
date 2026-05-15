@@ -37,6 +37,7 @@ export type Database = {
       }
       products: {
         Row: {
+          badge: string | null
           category: string
           created_at: string
           id: string
@@ -48,6 +49,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge?: string | null
           category: string
           created_at?: string
           id?: string
@@ -59,6 +61,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge?: string | null
           category?: string
           created_at?: string
           id?: string
