@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { listApprovedProducts, CATEGORIES } from "@/lib/products.functions";
 import { getAppSettings } from "@/lib/settings.functions";
-import { useLang, t } from "@/lib/i18n";
+import { useLang, t, useCurrency, formatPrice } from "@/lib/i18n";
 import { Loader2, ExternalLink, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +28,7 @@ type Product = {
 
 function ProductsPage() {
   const [lang] = useLang();
+  const [cur] = useCurrency();
   const tr = t[lang].products;
   const list = useServerFn(listApprovedProducts);
   const getSettings = useServerFn(getAppSettings);
@@ -84,7 +85,7 @@ function ProductsPage() {
           onClick={() => setCat("")}
           className={`rounded-full border px-3 py-1 text-xs transition ${cat === "" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}
         >
-          All
+          {tr.all}
         </button>
         {CATEGORIES.map((c) => (
           <button
@@ -132,7 +133,7 @@ function ProductsPage() {
                   <span className="line-clamp-2 text-sm font-medium">{p.name}</span>
                   <div className="mt-auto flex items-center justify-between pt-2">
                     <span className="text-sm font-bold text-primary">
-                      {p.price_cny != null ? `¥${p.price_cny}` : "—"}
+                      {formatPrice(p.price_cny, cur)}
                     </span>
                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   </div>
