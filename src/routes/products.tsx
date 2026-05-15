@@ -109,17 +109,19 @@ function ProductsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {items.map((p) => (
+            {items.map((p) => {
+              const agentUrl = toAgentLink(p.source_url);
+              return (
               <a
                 key={p.id}
-                href={p.source_url}
+                href={agentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
-                  navigator.clipboard?.writeText(p.source_url).catch(() => {});
+                  navigator.clipboard?.writeText(agentUrl).catch(() => {});
                   toast.success("Link copied");
                 }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
               >
                 <div className="relative aspect-square overflow-hidden bg-background">
                   {p.image_url ? (
@@ -127,21 +129,38 @@ function ProductsPage() {
                   ) : (
                     <div className="flex h-full items-center justify-center text-muted-foreground"><ImageOff className="h-6 w-6" /></div>
                   )}
-                  <span className="absolute right-2 top-2 rounded-full bg-background/80 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground backdrop-blur">
+                  <span className="absolute left-2 top-2 rounded-full bg-background/80 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground backdrop-blur">
                     {p.category}
                   </span>
+                  {p.badge === "best" && (
+                    <span className="absolute right-2 top-2 rounded-md bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
+                      Best Batch
+                    </span>
+                  )}
+                  {p.badge === "budget" && (
+                    <span className="absolute right-2 top-2 rounded-md bg-yellow-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black shadow-lg">
+                      Budget Batch
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col gap-1 p-3">
                   <span className="line-clamp-2 text-sm font-medium">{p.name}</span>
                   <div className="mt-auto flex items-center justify-between pt-2">
-                    <span className="text-sm font-bold text-primary">
-                      {formatPrice(p.price_cny, cur)}
-                    </span>
+                    <div className="flex flex-col leading-tight">
+                      <span className="text-sm font-bold text-primary">
+                        {formatPrice(p.price_cny, "CNY")}
+                      </span>
+                      {cur !== "CNY" && (
+                        <span className="text-[11px] text-muted-foreground">
+                          ≈ {formatPrice(p.price_cny, cur)}
+                        </span>
+                      )}
+                    </div>
                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
               </a>
-            ))}
+            );})}
           </div>
         )}
       </div>
