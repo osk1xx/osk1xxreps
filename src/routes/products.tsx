@@ -25,6 +25,7 @@ type Product = {
   source_url: string;
   image_url: string | null;
   price_cny: number | null;
+  badge: "best" | "budget" | null;
 };
 
 function ProductsPage() {
