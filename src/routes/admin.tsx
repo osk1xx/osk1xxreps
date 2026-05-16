@@ -231,8 +231,16 @@ function ProductsTab() {
         </Button>
       </form>
 
+      <Input
+        placeholder="Search products by name…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((p) => (
+        {items
+          .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()))
+          .map((p) => (
           <div key={p.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-background">
               {p.image_url ? <img src={p.image_url} className="h-full w-full object-cover" /> : null}
