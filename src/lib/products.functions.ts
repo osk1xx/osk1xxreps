@@ -92,7 +92,7 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
-    return { product: row };
+    return { product: row, duplicate: false as const };
   });
 
 export const adminUpdateProduct = createServerFn({ method: "POST" })
