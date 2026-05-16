@@ -40,10 +40,10 @@ const T = {
     serverErr: "Please try again in a moment.",
   },
   pl: {
-    brandTag: "Wyszukiwarka QC",
+    brandTag: "QC Finder",
     badge: "Wyszukiwanie zdjęć kontroli jakości",
     title1: "Najlepsza i Najszybsza",
-    title2: "Wyszukiwarka QC",
+    title2: "QC Finder",
     subtitle:
       "Wklej link do produktu od swojego chińskiego agenta. My znajdziemy zdjęcia QC — bez API, bez klikania.",
     placeholder: "Wklej link do produktu (Taobao, Weidian, 1688, agent…)",

@@ -147,6 +147,7 @@ function ProductsTab() {
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ category: CATEGORIES[0], name: "", url: "" });
+  const [search, setSearch] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
@@ -169,7 +170,14 @@ function ProductsTab() {
     if (busy) return;
     setBusy(true);
     try {
-      await create({ data: { ...form, adminKey: getKey() ?? "" } });
+      const res: any = await create({ data: { ...form, adminKey: getKey() ?? "" } });
+      if (res?.duplicate) {
+        const ok = window.confirm(
+          `We already found that link (existing: "${res.existing?.name ?? "—"}"). Are you sure you want to add it again?`,
+        );
+        if (!ok) return;
+        await create({ data: { ...form, force: true, adminKey: getKey() ?? "" } });
+      }
       setForm({ category: form.category, name: "", url: "" });
       toast.success("Draft created");
       await refresh();
@@ -223,8 +231,16 @@ function ProductsTab() {
         </Button>
       </form>
 
+      <Input
+        placeholder="Search products by name…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((p) => (
+        {items
+          .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()))
+          .map((p) => (
           <div key={p.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-background">
               {p.image_url ? <img src={p.image_url} className="h-full w-full object-cover" /> : null}
@@ -326,7 +342,9 @@ function ProductsTab() {
                   size="sm"
                   variant="destructive"
                   onClick={async () => {
+                    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
                     await del({ data: { id: p.id, adminKey: getKey() ?? "" } });
+                    toast.success("Deleted");
                     refresh();
                   }}
                 >
