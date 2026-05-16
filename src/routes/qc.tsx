@@ -111,6 +111,7 @@ function QcPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim() || loading) return;
+    const target = fromAgentLink(url.trim());
     setLoading(true);
     setImages([]);
     try {
@@ -120,9 +121,9 @@ function QcPage() {
         images: [] as string[],
       });
       const [r1, r2, r3] = await Promise.all([
-        find({ data: { url: url.trim() } }).catch(fail),
-        findAlt({ data: { url: url.trim() } }).catch(fail),
-        findRep({ data: { url: url.trim() } }).catch(fail),
+        find({ data: { url: target } }).catch(fail),
+        findAlt({ data: { url: target } }).catch(fail),
+        findRep({ data: { url: target } }).catch(fail),
       ]);
 
       const merged = Array.from(
