@@ -147,6 +147,7 @@ function ProductsTab() {
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ category: CATEGORIES[0], name: "", url: "" });
+  const [search, setSearch] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
