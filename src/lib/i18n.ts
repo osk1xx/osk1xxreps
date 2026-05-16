@@ -51,9 +51,9 @@ export const CURRENCY_SYMBOL: Record<Currency, string> = {
 };
 
 function getStoredCurrency(): Currency {
-  if (typeof window === "undefined") return "CNY";
+  if (typeof window === "undefined") return "USD";
   const v = window.localStorage.getItem(CUR_KEY);
-  return v === "CNY" || v === "PLN" || v === "USD" || v === "EUR" ? v : "CNY";
+  return v === "CNY" || v === "PLN" || v === "USD" || v === "EUR" ? v : "USD";
 }
 
 export function setStoredCurrency(c: Currency) {
@@ -63,7 +63,7 @@ export function setStoredCurrency(c: Currency) {
 }
 
 export function useCurrency(): [Currency, (c: Currency) => void] {
-  const [cur, setCur] = useState<Currency>("CNY");
+  const [cur, setCur] = useState<Currency>("USD");
   useEffect(() => {
     const sync = () => setCur(getStoredCurrency());
     sync();
