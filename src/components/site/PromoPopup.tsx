@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Gift } from "lucide-react";
 import { getAppSettings } from "@/lib/settings.functions";
-import { useLang } from "@/lib/i18n";
+import { useLang, getStoredLang } from "@/lib/i18n";
 
 const UIDBUY_URL = "https://uidbuy.com/register?ref=LZU8AH";
 
@@ -19,19 +19,40 @@ export function PromoPopup() {
     if (typeof window === "undefined") return;
 
     let cancelled = false;
-    const t = setTimeout(async () => {
-      try {
-        const s = await getSettings();
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+    const trigger = (delay: number) => {
+      timer = setTimeout(async () => {
+        try {
+          const s = await getSettings();
+          if (cancelled) return;
+          if (s.critical_alert) return;
+          setOpen(true);
+        } catch {
+          if (!cancelled) setOpen(true);
+        }
+      }, delay);
+    };
+
+    const hasLang = !!getStoredLang();
+    if (hasLang) {
+      trigger(0);
+    } else {
+      // Wait until the user picks a language, then open immediately.
+      pollTimer = setInterval(() => {
         if (cancelled) return;
-        if (s.critical_alert) return;
-        setOpen(true);
-      } catch {
-        if (!cancelled) setOpen(true);
-      }
-    }, 2500);
+        if (getStoredLang()) {
+          if (pollTimer) clearInterval(pollTimer);
+          trigger(0);
+        }
+      }, 200);
+    }
+
     return () => {
       cancelled = true;
-      clearTimeout(t);
+      if (timer) clearTimeout(timer);
+      if (pollTimer) clearInterval(pollTimer);
     };
   }, [loc.pathname, getSettings]);
 
