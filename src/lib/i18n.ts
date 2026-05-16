@@ -136,7 +136,7 @@ export const t = {
   },
   pl: {
     nav: {
-      qc: "Wyszukiwarka QC",
+      qc: "QC Finder",
       products: "Produkty",
       tracking: "Śledzenie",
       sizes: "Rozmiarówka",
