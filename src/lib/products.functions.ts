@@ -53,11 +53,22 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
         category: z.string().min(1).max(64),
         name: z.string().min(1).max(200),
         url: z.string().url().max(2000),
+        force: z.boolean().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data }) => {
     assertAdmin(data.adminKey);
+    if (!data.force) {
+      const { data: existing } = await supabaseAdmin
+        .from("products")
+        .select("id,name")
+        .eq("source_url", data.url)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        return { duplicate: true as const, existing: existing[0] };
+      }
+    }
     let price_cny: number | null = null;
     // Scan both the agent page and the original seller page; keep the lowest price.
     const agentUrl = toAgentLink(data.url);
