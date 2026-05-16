@@ -7,7 +7,6 @@ import { getAppSettings } from "@/lib/settings.functions";
 import { useLang } from "@/lib/i18n";
 
 const UIDBUY_URL = "https://uidbuy.com/register?ref=LZU8AH";
-const SEEN_KEY = "osk:promoSeenUidbuy";
 
 export function PromoPopup() {
   const loc = useLocation();
@@ -18,7 +17,6 @@ export function PromoPopup() {
   useEffect(() => {
     if (loc.pathname !== "/") return;
     if (typeof window === "undefined") return;
-    if (window.localStorage.getItem(SEEN_KEY)) return;
 
     let cancelled = false;
     const t = setTimeout(async () => {
@@ -39,7 +37,6 @@ export function PromoPopup() {
 
   const close = () => {
     setOpen(false);
-    if (typeof window !== "undefined") window.localStorage.setItem(SEEN_KEY, "1");
   };
 
   const en = lang === "en";
