@@ -101,16 +101,25 @@ function ProductsPage() {
         ))}
       </div>
 
+      <div className="mt-4">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={lang === "pl" ? "Szukaj produktu…" : "Search products…"}
+          className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+      </div>
+
       <div className="mt-8">
         {loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-        ) : items.length === 0 ? (
+        ) : items.filter((p) => !q || p.name.toLowerCase().includes(q.toLowerCase())).length === 0 ? (
           <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
             {tr.empty}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {items.map((p) => {
+            {items.filter((p) => !q || p.name.toLowerCase().includes(q.toLowerCase())).map((p) => {
               const agentUrl = toAgentLink(p.source_url);
               return (
               <a
