@@ -37,6 +37,7 @@ function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Product[]>([]);
   const [cat, setCat] = useState<string>("");
+  const [q, setQ] = useState("");
   const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
