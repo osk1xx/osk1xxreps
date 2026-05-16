@@ -170,7 +170,14 @@ function ProductsTab() {
     if (busy) return;
     setBusy(true);
     try {
-      await create({ data: { ...form, adminKey: getKey() ?? "" } });
+      const res: any = await create({ data: { ...form, adminKey: getKey() ?? "" } });
+      if (res?.duplicate) {
+        const ok = window.confirm(
+          `We already found that link (existing: "${res.existing?.name ?? "—"}"). Are you sure you want to add it again?`,
+        );
+        if (!ok) return;
+        await create({ data: { ...form, force: true, adminKey: getKey() ?? "" } });
+      }
       setForm({ category: form.category, name: "", url: "" });
       toast.success("Draft created");
       await refresh();
