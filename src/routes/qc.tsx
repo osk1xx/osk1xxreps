@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Search, ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLang } from "@/lib/i18n";
+import { fromAgentLink } from "@/lib/agent-link";
 
 const T = {
   en: {
