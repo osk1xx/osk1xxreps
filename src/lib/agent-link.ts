@@ -41,3 +41,24 @@ export function toAgentLink(raw: string): string {
   }
   return raw;
 }
+
+// Reverse: convert a UIDBUY agent deep link back to the original seller URL.
+// uidbuy.com/product/<1|2|3>/<ID>...  ->  seller URL
+//   1 -> 1688, 2 -> taobao, 3 -> weidian
+// Returns the original input if not a UIDBUY link.
+export function fromAgentLink(raw: string): string {
+  if (!raw) return raw;
+  try {
+    const u = new URL(raw);
+    if (!u.hostname.toLowerCase().includes("uidbuy.com")) return raw;
+    const m = u.pathname.match(/\/product\/([123])\/(\d+)/);
+    if (!m) return raw;
+    const [, kind, id] = m;
+    if (kind === "1") return `https://detail.1688.com/offer/${id}.html`;
+    if (kind === "2") return `https://item.taobao.com/item.htm?id=${id}`;
+    if (kind === "3") return `https://shop.v.weidian.com/item.html?itemID=${id}`;
+  } catch {
+    /* fall through */
+  }
+  return raw;
+}
