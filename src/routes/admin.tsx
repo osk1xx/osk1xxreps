@@ -342,7 +342,9 @@ function ProductsTab() {
                   size="sm"
                   variant="destructive"
                   onClick={async () => {
+                    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
                     await del({ data: { id: p.id, adminKey: getKey() ?? "" } });
+                    toast.success("Deleted");
                     refresh();
                   }}
                 >
