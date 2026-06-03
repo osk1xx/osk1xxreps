@@ -120,7 +120,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
-        {(["products", "settings"] as Tab[]).map((k) => (
+        {(["products", "import", "settings"] as Tab[]).map((k) => (
           <button
             key={k}
             onClick={() => setTab(k)}
@@ -130,12 +130,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {k}
+            {k === "import" ? "Import from Sheets" : k}
           </button>
         ))}
       </div>
       <div>
         {tab === "products" && <ProductsTab />}
+        {tab === "import" && <ImportTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
     </main>
