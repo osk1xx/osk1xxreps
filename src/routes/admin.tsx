@@ -11,10 +11,14 @@ import {
   adminDeleteProduct,
 } from "@/lib/products.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
+import {
+  adminPreviewSheetImport,
+  adminImportProducts,
+} from "@/lib/sheets-import.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2 } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2, DownloadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
