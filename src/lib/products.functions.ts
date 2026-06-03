@@ -8,11 +8,14 @@ import { toAgentLink } from "./agent-link";
 export const CATEGORIES = [
   "Shoes",
   "Hoodies",
-  "T-Shirts",
   "Pants",
+  "T-Shirts",
+  "Shorts",
+  "Coats & Jackets",
   "Accessories",
-  "Belts",
   "Bags",
+  "Belts",
+  "Electronics",
 ] as const;
 
 const adminKey = z.string().min(1).max(128);
