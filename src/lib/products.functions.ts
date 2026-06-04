@@ -68,11 +68,16 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     assertAdmin(data.adminKey);
+    const cfg = await getAgentConfig();
+    // The admin may paste an agent (UIDBUY) link OR a raw seller link.
+    // Always store the original Chinese seller link in the database so we can
+    // re-generate the agent link later (and swap agents) without losing data.
+    const sellerUrl = fromAgentLink(data.url, cfg);
     if (!data.force) {
       const { data: existing } = await supabaseAdmin
         .from("products")
         .select("id,name")
-        .eq("source_url", data.url)
+        .eq("source_url", sellerUrl)
         .limit(1);
       if (existing && existing.length > 0) {
         return { duplicate: true as const, existing: existing[0] };
@@ -80,8 +85,8 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
     }
     let price_cny: number | null = null;
     // Scan both the agent page and the original seller page; keep the lowest price.
-    const agentUrl = toAgentLink(data.url);
-    const tryUrls = agentUrl !== data.url ? [agentUrl, data.url] : [data.url];
+    const agentUrl = toAgentLink(sellerUrl, cfg);
+    const tryUrls = agentUrl !== sellerUrl ? [agentUrl, sellerUrl] : [sellerUrl];
     for (const u of tryUrls) {
       const html = await fetchPage(u);
       if (!html) continue;
@@ -93,7 +98,7 @@ export const adminCreateDraft = createServerFn({ method: "POST" })
       .insert({
         category: data.category,
         name: data.name,
-        source_url: data.url,
+        source_url: sellerUrl,
         image_url: null,
         price_cny,
         status: "draft",
