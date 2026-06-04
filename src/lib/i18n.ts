@@ -90,6 +90,7 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Products",
+      tutorials: "Tutorials",
       tracking: "Tracking",
       sizes: "Size Guide",
       gifts: "Register for Prizes",
