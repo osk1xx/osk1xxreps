@@ -64,6 +64,9 @@ const T = {
 
 export const Route = createFileRoute("/qc")({
   component: QcPage,
+  validateSearch: (search: Record<string, unknown>): { url?: string } => ({
+    url: typeof search.url === "string" ? search.url : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "QC Finder — osk1xx reps" },
