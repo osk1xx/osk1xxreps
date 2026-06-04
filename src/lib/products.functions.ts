@@ -3,7 +3,16 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertAdmin } from "./admin-guard.server";
 import { extractPriceCNY, fetchPage } from "./scrape.server";
-import { toAgentLink } from "./agent-link";
+import { toAgentLink, fromAgentLink, normalizeAgentConfig } from "./agent-link";
+
+async function getAgentConfig() {
+  const { data } = await supabaseAdmin
+    .from("app_settings")
+    .select("agent_config")
+    .eq("id", 1)
+    .single();
+  return normalizeAgentConfig(data?.agent_config);
+}
 
 export const CATEGORIES = [
   "Shoes",
