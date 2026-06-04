@@ -39,12 +39,19 @@ function ProductsPage() {
   const [cat, setCat] = useState<string>("");
   const [q, setQ] = useState("");
   const [blocked, setBlocked] = useState(false);
+  const [agentConfig, setAgentConfig] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const s = await getSettings().catch(() => ({ disable_products: false, critical_alert: false }));
+      const s = await getSettings().catch(() => ({
+        disable_products: false,
+        critical_alert: false,
+        agent_config: DEFAULT_AGENT_CONFIG,
+      }));
       if (cancelled) return;
+      if ((s as any).agent_config) setAgentConfig((s as any).agent_config);
       if (s.disable_products || s.critical_alert) {
         setBlocked(true);
         setLoading(false);
@@ -59,6 +66,7 @@ function ProductsPage() {
     })();
     return () => { cancelled = true; };
   }, [cat, list, getSettings]);
+
 
   if (blocked) {
     return (
