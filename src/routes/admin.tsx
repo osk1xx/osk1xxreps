@@ -375,11 +375,16 @@ function SettingsTab() {
   const get = useServerFn(getAppSettings);
   const upd = useServerFn(adminUpdateSettings);
   const [s, setS] = useState({ disable_products: false, critical_alert: false });
+  const [agent, setAgent] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
+  const [savingAgent, setSavingAgent] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     get()
-      .then(setS)
+      .then((r: any) => {
+        setS({ disable_products: r.disable_products, critical_alert: r.critical_alert });
+        if (r.agent_config) setAgent(r.agent_config);
+      })
       .catch((e: any) => {
         console.error(e);
         setLoadError("Failed to load settings");
@@ -396,6 +401,19 @@ function SettingsTab() {
       setS((p) => ({ ...p, [k]: !v }));
     }
   };
+
+  const saveAgent = async () => {
+    setSavingAgent(true);
+    try {
+      await upd({ data: { agent_config: agent, adminKey: getKey() ?? "" } });
+      toast.success("Agent settings saved");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save agent settings");
+    } finally {
+      setSavingAgent(false);
+    }
+  };
+
 
   if (loadError) {
     return (
