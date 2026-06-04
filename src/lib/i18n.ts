@@ -185,6 +185,16 @@ export const t = {
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
       all: "Wszystkie",
       currency: "Waluta",
+      buy: "Kup przez UIDBuy",
+      checkQc: "Sprawdź QC",
+    },
+    tutorials: {
+      title: "Poradniki",
+      sub: "Poradniki krok po kroku — jak zamawiać, sprawdzać i śledzić.",
+      empty: "Brak poradników. Zajrzyj wkrótce.",
+      steps: "kroków",
+      step: "Krok",
+      back: "Wróć do poradników",
     },
     alert: {
       title: "PILNE OSTRZEŻENIE",
