@@ -32,6 +32,7 @@ export function Navbar() {
   const navItems = [
     { to: "/qc", label: tr.qc },
     { to: "/products", label: tr.products },
+    { to: "/tutorials", label: tr.tutorials },
     { to: "/tracking", label: tr.tracking },
     { to: "/sizes", label: tr.sizes },
   ] as const;
