@@ -126,6 +126,16 @@ export const t = {
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
       all: "All",
       currency: "Currency",
+      buy: "Buy with UIDBuy",
+      checkQc: "Check QC",
+    },
+    tutorials: {
+      title: "Tutorials",
+      sub: "Step-by-step guides to help you order, check and track.",
+      empty: "No tutorials yet. Check back soon.",
+      steps: "steps",
+      step: "Step",
+      back: "Back to tutorials",
     },
     alert: {
       title: "CRITICAL ALERT",
