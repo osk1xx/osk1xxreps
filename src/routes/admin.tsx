@@ -233,7 +233,7 @@ function ProductsTab() {
           required
         />
         <Input
-          placeholder="Product link"
+          placeholder="UIDBUY or seller link"
           value={form.url}
           onChange={(e) => setForm({ ...form, url: e.target.value })}
           required
