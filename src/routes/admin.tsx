@@ -11,14 +11,10 @@ import {
   adminDeleteProduct,
 } from "@/lib/products.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
-import {
-  adminPreviewSheetImport,
-  adminImportProducts,
-} from "@/lib/sheets-import.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2, DownloadCloud } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
@@ -28,7 +24,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — osk1xx reps" }] }),
 });
 
-type Tab = "products" | "import" | "settings";
+type Tab = "products" | "settings";
 
 function getKey(): string | null {
   if (typeof window === "undefined") return null;
@@ -120,7 +116,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
-        {(["products", "import", "settings"] as Tab[]).map((k) => (
+        {(["products", "settings"] as Tab[]).map((k) => (
           <button
             key={k}
             onClick={() => setTab(k)}
@@ -130,13 +126,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {k === "import" ? "Import from Sheets" : k}
+            {k}
           </button>
         ))}
       </div>
       <div>
         {tab === "products" && <ProductsTab />}
-        {tab === "import" && <ImportTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
     </main>
@@ -363,207 +358,6 @@ function ProductsTab() {
     </div>
   );
 }
-
-type ImportRow = {
-  name: string;
-  url: string;
-  priceUsd: number | null;
-  priceEur: number | null;
-  priceCny: number | null;
-  category: string;
-  tab: string;
-  duplicate: boolean;
-  selected: boolean;
-};
-
-function ImportTab() {
-  const preview = useServerFn(adminPreviewSheetImport);
-  const importFn = useServerFn(adminImportProducts);
-  const [rows, setRows] = useState<ImportRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [search, setSearch] = useState("");
-  const [hideDupes, setHideDupes] = useState(true);
-
-  const load = async () => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const r: any = await preview({ data: { adminKey: getKey() ?? "" } });
-      setRows(
-        (r.items as Omit<ImportRow, "selected">[]).map((i) => ({
-          ...i,
-          selected: !i.duplicate,
-        })),
-      );
-      setLoaded(true);
-      toast.success(`Found ${r.items.length} products`);
-    } catch (e: any) {
-      toast.error(e.message || "Failed to read sheets");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const visible = rows.filter(
-    (r) =>
-      (!hideDupes || !r.duplicate) &&
-      (!search || r.name.toLowerCase().includes(search.toLowerCase())),
-  );
-  const selectedCount = rows.filter((r) => r.selected && !r.duplicate).length;
-
-  const setRow = (url: string, patch: Partial<ImportRow>) =>
-    setRows((rs) => rs.map((r) => (r.url === url ? { ...r, ...patch } : r)));
-
-  const setAllVisible = (sel: boolean) =>
-    setRows((rs) =>
-      rs.map((r) =>
-        visible.some((v) => v.url === r.url) && !r.duplicate ? { ...r, selected: sel } : r,
-      ),
-    );
-
-  const doImport = async () => {
-    const chosen = rows.filter((r) => r.selected && !r.duplicate);
-    if (chosen.length === 0) {
-      toast.error("Nothing selected");
-      return;
-    }
-    if (!window.confirm(`Import ${chosen.length} products as drafts?`)) return;
-    setImporting(true);
-    try {
-      const res: any = await importFn({
-        data: {
-          adminKey: getKey() ?? "",
-          items: chosen.map((c) => ({
-            name: c.name,
-            url: c.url,
-            category: c.category,
-            priceCny: c.priceCny,
-          })),
-        },
-      });
-      toast.success(`Imported ${res.inserted} drafts (${res.skipped} skipped)`);
-      // Re-run preview so newly imported items now show as duplicates.
-      await load();
-    } catch (e: any) {
-      toast.error(e.message || "Import failed");
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  if (!loaded) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <DownloadCloud className="mx-auto mb-3 h-8 w-8 text-primary" />
-        <h3 className="text-lg font-semibold">Import products from Google Sheets</h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Reads every catalog tab, keeps only valid UIDBUY product links (Reddit / Telegram /
-          Discord and other non-product links are ignored), and lets you review, categorize and
-          accept items as drafts. Photos aren't stored in the sheet, so add images afterwards.
-        </p>
-        <Button className="mt-4" onClick={load} disabled={loading}>
-          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DownloadCloud className="mr-2 h-4 w-4" />}
-          {loading ? "Reading sheets…" : "Read sheets"}
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Input
-          className="max-w-xs"
-          placeholder="Search by name…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={hideDupes}
-            onChange={(e) => setHideDupes(e.target.checked)}
-          />
-          Hide already imported
-        </label>
-        <Button size="sm" variant="outline" onClick={() => setAllVisible(true)}>
-          Select all shown
-        </Button>
-        <Button size="sm" variant="outline" onClick={() => setAllVisible(false)}>
-          Deselect all shown
-        </Button>
-        <div className="ml-auto flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{selectedCount} selected</span>
-          <Button onClick={doImport} disabled={importing || selectedCount === 0}>
-            {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Import selected
-          </Button>
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        Showing {visible.length} of {rows.length} products.
-      </p>
-
-      <div className="space-y-2">
-        {visible.slice(0, 600).map((r) => (
-          <div
-            key={r.url}
-            className={`flex items-center gap-3 rounded-xl border p-2 ${
-              r.duplicate ? "border-border/50 opacity-60" : "border-border bg-card"
-            }`}
-          >
-            <input
-              type="checkbox"
-              disabled={r.duplicate}
-              checked={r.selected && !r.duplicate}
-              onChange={(e) => setRow(r.url, { selected: e.target.checked })}
-            />
-            <Input
-              className="h-8 flex-1 text-sm"
-              value={r.name}
-              onChange={(e) => setRow(r.url, { name: e.target.value })}
-            />
-            <span className="w-16 shrink-0 text-right text-xs text-primary">
-              {r.priceUsd != null ? `$${r.priceUsd}` : "—"}
-            </span>
-            <select
-              className="h-8 shrink-0 rounded-md border border-border bg-background px-2 text-xs"
-              value={r.category}
-              onChange={(e) => setRow(r.url, { category: e.target.value })}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <a
-              href={r.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 text-xs text-primary underline"
-            >
-              link
-            </a>
-            {r.duplicate && (
-              <span className="shrink-0 text-[10px] uppercase text-amber-400">imported</span>
-            )}
-          </div>
-        ))}
-      </div>
-      {visible.length > 600 && (
-        <p className="text-xs text-muted-foreground">
-          Showing first 600 — use search to narrow down the rest.
-        </p>
-      )}
-    </div>
-  );
-}
-
-
 
 function SettingsTab() {
   const get = useServerFn(getAppSettings);
