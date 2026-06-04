@@ -16,18 +16,21 @@ export type Database = {
     Tables: {
       app_settings: {
         Row: {
+          agent_config: Json
           critical_alert: boolean
           disable_products: boolean
           id: number
           updated_at: string
         }
         Insert: {
+          agent_config?: Json
           critical_alert?: boolean
           disable_products?: boolean
           id?: number
           updated_at?: string
         }
         Update: {
+          agent_config?: Json
           critical_alert?: boolean
           disable_products?: boolean
           id?: number
@@ -70,6 +73,80 @@ export type Database = {
           price_cny?: number | null
           source_url?: string
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tutorial_steps: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          photos: Json
+          position: number
+          text: string
+          tutorial_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          photos?: Json
+          position?: number
+          text?: string
+          tutorial_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          photos?: Json
+          position?: number
+          text?: string
+          tutorial_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutorial_steps_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutorials: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          language: string
+          published: boolean
+          sort: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          published?: boolean
+          sort?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          published?: boolean
+          sort?: number
+          title?: string
           updated_at?: string
         }
         Relationships: []
