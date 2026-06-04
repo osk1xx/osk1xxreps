@@ -90,6 +90,7 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Products",
+      tutorials: "Tutorials",
       tracking: "Tracking",
       sizes: "Size Guide",
       gifts: "Register for Prizes",
@@ -125,6 +126,16 @@ export const t = {
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
       all: "All",
       currency: "Currency",
+      buy: "Buy with UIDBuy",
+      checkQc: "Check QC",
+    },
+    tutorials: {
+      title: "Tutorials",
+      sub: "Step-by-step guides to help you order, check and track.",
+      empty: "No tutorials yet. Check back soon.",
+      steps: "steps",
+      step: "Step",
+      back: "Back to tutorials",
     },
     alert: {
       title: "CRITICAL ALERT",
@@ -138,6 +149,7 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Produkty",
+      tutorials: "Poradniki",
       tracking: "Śledzenie",
       sizes: "Rozmiarówka",
       gifts: "Zarejestruj po nagrody",
@@ -173,6 +185,16 @@ export const t = {
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
       all: "Wszystkie",
       currency: "Waluta",
+      buy: "Kup przez UIDBuy",
+      checkQc: "Sprawdź QC",
+    },
+    tutorials: {
+      title: "Poradniki",
+      sub: "Poradniki krok po kroku — jak zamawiać, sprawdzać i śledzić.",
+      empty: "Brak poradników. Zajrzyj wkrótce.",
+      steps: "kroków",
+      step: "Krok",
+      back: "Wróć do poradników",
     },
     alert: {
       title: "PILNE OSTRZEŻENIE",

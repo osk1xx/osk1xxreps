@@ -64,6 +64,9 @@ const T = {
 
 export const Route = createFileRoute("/qc")({
   component: QcPage,
+  validateSearch: (search: Record<string, unknown>): { url?: string } => ({
+    url: typeof search.url === "string" ? search.url : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "QC Finder — osk1xx reps" },
@@ -80,6 +83,7 @@ function QcPage() {
   const findAlt = useServerFn(findQcImagesViaTymix);
   const findRep = useServerFn(findQcImagesViaRepworld);
   const [lang] = useLang();
+  const { url: urlParam } = Route.useSearch();
 
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -108,10 +112,9 @@ function QcPage() {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!url.trim() || loading) return;
-    const target = fromAgentLink(url.trim());
+  const runSearch = async (raw: string) => {
+    if (!raw.trim() || loading) return;
+    const target = fromAgentLink(raw.trim());
     setLoading(true);
     setImages([]);
     try {
@@ -152,6 +155,21 @@ function QcPage() {
       setLoading(false);
     }
   };
+
+  // Auto-search when arriving from a product's "Check QC" button.
+  useEffect(() => {
+    if (urlParam && urlParam.trim()) {
+      setUrl(urlParam);
+      runSearch(urlParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParam]);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    runSearch(url);
+  };
+
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">

@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { listApprovedProducts, CATEGORIES } from "@/lib/products.functions";
 import { getAppSettings } from "@/lib/settings.functions";
 import { useLang, t, useCurrency, formatPrice } from "@/lib/i18n";
-import { toAgentLink } from "@/lib/agent-link";
-import { Loader2, ExternalLink, ImageOff } from "lucide-react";
+import { toAgentLink, DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
+import { Loader2, ShoppingBag, Camera, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/products")({
@@ -39,12 +39,19 @@ function ProductsPage() {
   const [cat, setCat] = useState<string>("");
   const [q, setQ] = useState("");
   const [blocked, setBlocked] = useState(false);
+  const [agentConfig, setAgentConfig] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const s = await getSettings().catch(() => ({ disable_products: false, critical_alert: false }));
+      const s = await getSettings().catch(() => ({
+        disable_products: false,
+        critical_alert: false,
+        agent_config: DEFAULT_AGENT_CONFIG,
+      }));
       if (cancelled) return;
+      if ((s as any).agent_config) setAgentConfig((s as any).agent_config);
       if (s.disable_products || s.critical_alert) {
         setBlocked(true);
         setLoading(false);
@@ -59,6 +66,7 @@ function ProductsPage() {
     })();
     return () => { cancelled = true; };
   }, [cat, list, getSettings]);
+
 
   if (blocked) {
     return (
@@ -120,17 +128,10 @@ function ProductsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {items.filter((p) => !q || p.name.toLowerCase().includes(q.toLowerCase())).map((p) => {
-              const agentUrl = toAgentLink(p.source_url);
+              const agentUrl = toAgentLink(p.source_url, agentConfig);
               return (
-              <a
+              <div
                 key={p.id}
-                href={agentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  navigator.clipboard?.writeText(agentUrl).catch(() => {});
-                  toast.success("Link copied");
-                }}
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:border-primary/60 hover:shadow-[var(--shadow-glow)]"
               >
                 <div className="relative aspect-square overflow-hidden bg-background">
@@ -153,27 +154,50 @@ function ProductsPage() {
                     </span>
                   )}
                 </div>
-                <div className="flex flex-1 flex-col gap-1 p-3">
+                <div className="flex flex-1 flex-col gap-2 p-3">
                   <span className="line-clamp-2 text-sm font-medium">{p.name}</span>
-                  <div className="mt-auto flex items-center justify-between pt-2">
-                    <div className="flex flex-col leading-tight">
-                      <span className="text-sm font-bold text-primary">
-                        {formatPrice(p.price_cny, "CNY")}
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-sm font-bold text-primary">
+                      {formatPrice(p.price_cny, "CNY")}
+                    </span>
+                    {cur !== "CNY" && (
+                      <span className="text-[11px] text-muted-foreground">
+                        ≈ {formatPrice(p.price_cny, cur)}
                       </span>
-                      {cur !== "CNY" && (
-                        <span className="text-[11px] text-muted-foreground">
-                          ≈ {formatPrice(p.price_cny, cur)}
-                        </span>
-                      )}
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="mt-auto flex gap-2 pt-1">
+                    <a
+                      href={agentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(agentUrl).catch(() => {});
+                        toast.success("Link copied");
+                      }}
+                      className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5" />
+                      {tr.buy}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate({ to: "/qc", search: { url: p.source_url } })
+                      }
+                      className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border px-2 py-1.5 text-[11px] font-semibold text-foreground transition hover:border-primary/60 hover:text-primary"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      {tr.checkQc}
+                    </button>
                   </div>
                 </div>
-              </a>
+              </div>
             );})}
           </div>
         )}
       </div>
     </main>
+
   );
 }

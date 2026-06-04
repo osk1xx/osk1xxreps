@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TutorialsRouteImport } from './routes/tutorials'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SizesRouteImport } from './routes/sizes'
 import { Route as QcRouteImport } from './routes/qc'
@@ -16,6 +17,11 @@ import { Route as ProductsRouteImport } from './routes/products'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TutorialsRoute = TutorialsRouteImport.update({
+  id: '/tutorials',
+  path: '/tutorials',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
+  '/tutorials': typeof TutorialsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
+  '/tutorials': typeof TutorialsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,36 @@ export interface FileRoutesById {
   '/qc': typeof QcRoute
   '/sizes': typeof SizesRoute
   '/tracking': typeof TrackingRoute
+  '/tutorials': typeof TutorialsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/products'
+    | '/qc'
+    | '/sizes'
+    | '/tracking'
+    | '/tutorials'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
-  id: '__root__' | '/' | '/admin' | '/products' | '/qc' | '/sizes' | '/tracking'
+  to:
+    | '/'
+    | '/admin'
+    | '/products'
+    | '/qc'
+    | '/sizes'
+    | '/tracking'
+    | '/tutorials'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/products'
+    | '/qc'
+    | '/sizes'
+    | '/tracking'
+    | '/tutorials'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,10 +118,18 @@ export interface RootRouteChildren {
   QcRoute: typeof QcRoute
   SizesRoute: typeof SizesRoute
   TrackingRoute: typeof TrackingRoute
+  TutorialsRoute: typeof TutorialsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tutorials': {
+      id: '/tutorials'
+      path: '/tutorials'
+      fullPath: '/tutorials'
+      preLoaderRoute: typeof TutorialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tracking': {
       id: '/tracking'
       path: '/tracking'
@@ -143,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   QcRoute: QcRoute,
   SizesRoute: SizesRoute,
   TrackingRoute: TrackingRoute,
+  TutorialsRoute: TutorialsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
