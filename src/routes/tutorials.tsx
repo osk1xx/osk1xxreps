@@ -6,7 +6,6 @@ import { getAppSettings } from "@/lib/settings.functions";
 import { useLang, t } from "@/lib/i18n";
 import {
   Loader2,
-  ChevronLeft,
   ChevronRight,
   BookOpen,
   ArrowLeft,
