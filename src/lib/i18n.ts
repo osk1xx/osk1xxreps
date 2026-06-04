@@ -149,6 +149,7 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Produkty",
+      tutorials: "Poradniki",
       tracking: "Śledzenie",
       sizes: "Rozmiarówka",
       gifts: "Zarejestruj po nagrody",
