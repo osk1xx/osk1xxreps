@@ -127,7 +127,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
-        {(["products", "settings"] as Tab[]).map((k) => (
+        {(["products", "tutorials", "settings"] as Tab[]).map((k) => (
           <button
             key={k}
             onClick={() => setTab(k)}
@@ -143,6 +143,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       </div>
       <div>
         {tab === "products" && <ProductsTab />}
+        {tab === "tutorials" && <TutorialsTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
     </main>
