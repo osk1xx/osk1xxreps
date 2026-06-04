@@ -10,11 +10,22 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/products.functions";
+import {
+  adminListTutorials,
+  adminGetTutorialSteps,
+  adminCreateTutorial,
+  adminUpdateTutorial,
+  adminDeleteTutorial,
+  adminCreateStep,
+  adminUpdateStep,
+  adminDeleteStep,
+} from "@/lib/tutorials.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
+import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2 } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
@@ -24,7 +35,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — osk1xx reps" }] }),
 });
 
-type Tab = "products" | "settings";
+type Tab = "products" | "tutorials" | "settings";
 
 function getKey(): string | null {
   if (typeof window === "undefined") return null;
