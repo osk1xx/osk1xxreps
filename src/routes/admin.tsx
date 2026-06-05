@@ -21,6 +21,12 @@ import {
   adminDeleteStep,
 } from "@/lib/tutorials.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
+import {
+  adminListAgents,
+  adminCreateAgent,
+  adminUpdateAgent,
+  adminDeleteAgent,
+} from "@/lib/agents.functions";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
