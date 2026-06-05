@@ -35,13 +35,29 @@ function ProductsPage() {
   const tr = t[lang].products;
   const list = useServerFn(listApprovedProducts);
   const getSettings = useServerFn(getAppSettings);
+  const getAgents = useServerFn(listActiveAgents);
+  const [chosenAgentId] = useAgentId();
+  const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Product[]>([]);
   const [cat, setCat] = useState<string>("");
   const [q, setQ] = useState("");
   const [blocked, setBlocked] = useState(false);
-  const [agentConfig, setAgentConfig] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
   const navigate = useNavigate();
+
+  const chosenAgent =
+    agents.find((a) => a.id === chosenAgentId) ??
+    agents.find((a) => a.recommended) ??
+    agents[0] ??
+    null;
+  const agentConfig = chosenAgent ? agentToConfig(chosenAgent) : DEFAULT_AGENT_CONFIG;
+  const agentName = chosenAgent?.name ?? "UIDBuy";
+
+  useEffect(() => {
+    getAgents()
+      .then((r) => setAgents(r.agents ?? []))
+      .catch(() => {});
+  }, [getAgents]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,10 +65,8 @@ function ProductsPage() {
       const s = await getSettings().catch(() => ({
         disable_products: false,
         critical_alert: false,
-        agent_config: DEFAULT_AGENT_CONFIG,
       }));
       if (cancelled) return;
-      if ((s as any).agent_config) setAgentConfig((s as any).agent_config);
       if (s.disable_products || s.critical_alert) {
         setBlocked(true);
         setLoading(false);
@@ -67,6 +81,7 @@ function ProductsPage() {
     })();
     return () => { cancelled = true; };
   }, [cat, list, getSettings]);
+
 
 
   if (blocked) {
