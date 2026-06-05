@@ -119,11 +119,24 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Products",
+      agents: "Agents",
       tutorials: "Tutorials",
       tracking: "Tracking",
       sizes: "Size Guide",
       gifts: "Register for Prizes",
     },
+    agents: {
+      title: "Choose your agent",
+      sub: "Pick the shipping agent you want to use. The recommended one gives the best deals.",
+      recommended: "Recommended",
+      choose: "Choose",
+      chosen: "Your agent",
+      register: "Register",
+      pickTitle: "Pick your agent",
+      pickSub: "You can change this anytime. The recommended agent gives you the best deals.",
+      continue: "Continue",
+    },
+
     home: {
       title: "OSK1XX REPS – FIND. CHECK. WEAR.",
       sub: "The plug for the rep game. Fastest QC photos, curated picks, no cap.",
