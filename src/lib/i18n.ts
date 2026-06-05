@@ -5,8 +5,10 @@ export type Currency = "CNY" | "PLN" | "USD" | "EUR";
 
 const LANG_KEY = "osk:lang";
 const CUR_KEY = "osk:currency";
+const AGENT_KEY = "osk:agent";
 const LANG_EVT = "osk:lang-change";
 const CUR_EVT = "osk:cur-change";
+const AGENT_EVT = "osk:agent-change";
 
 export function getStoredLang(): Lang | null {
   if (typeof window === "undefined") return null;
