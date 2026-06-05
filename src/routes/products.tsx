@@ -194,7 +194,7 @@ function ProductsPage() {
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
-                      {tr.buy}
+                      {tr.buy} {agentName}
                     </a>
                     <button
                       type="button"
