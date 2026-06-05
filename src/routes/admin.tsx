@@ -21,11 +21,17 @@ import {
   adminDeleteStep,
 } from "@/lib/tutorials.functions";
 import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
+import {
+  adminListAgents,
+  adminCreateAgent,
+  adminUpdateAgent,
+  adminDeleteAgent,
+} from "@/lib/agents.functions";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2, Plus } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2, Plus, Crown } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
@@ -35,7 +41,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — osk1xx reps" }] }),
 });
 
-type Tab = "products" | "tutorials" | "settings";
+type Tab = "products" | "agents" | "tutorials" | "settings";
 
 function getKey(): string | null {
   if (typeof window === "undefined") return null;
@@ -127,7 +133,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         </Button>
       </div>
       <div className="mb-6 flex gap-2 border-b border-border">
-        {(["products", "tutorials", "settings"] as Tab[]).map((k) => (
+        {(["products", "agents", "tutorials", "settings"] as Tab[]).map((k) => (
           <button
             key={k}
             onClick={() => setTab(k)}
@@ -143,6 +149,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       </div>
       <div>
         {tab === "products" && <ProductsTab />}
+        {tab === "agents" && <AgentsTab />}
         {tab === "tutorials" && <TutorialsTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
@@ -757,6 +764,243 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
         <Plus className="mr-1 h-3 w-3" />
         Add step
       </Button>
+    </div>
+  );
+}
+
+function AgentsTab() {
+  const listFn = useServerFn(adminListAgents);
+  const createFn = useServerFn(adminCreateAgent);
+  const updateFn = useServerFn(adminUpdateAgent);
+  const deleteFn = useServerFn(adminDeleteAgent);
+  const [items, setItems] = useState<any[]>([]);
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    try {
+      const r = await listFn({ data: { adminKey: getKey() ?? "" } });
+      setItems(r.agents);
+    } catch {
+      toast.error("Failed to load agents");
+    }
+  };
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  const onCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (busy || !name.trim()) return;
+    setBusy(true);
+    try {
+      await createFn({ data: { adminKey: getKey() ?? "", name: name.trim() } });
+      setName("");
+      toast.success("Agent added");
+      await refresh();
+    } catch (e: any) {
+      toast.error(e.message || "Failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const patch = (id: string, data: any) =>
+    setItems((it) => it.map((x) => (x.id === id ? { ...x, ...data } : x)));
+
+  const save = (id: string, data: any) =>
+    updateFn({ data: { id, adminKey: getKey() ?? "", ...data } })
+      .then(() => toast.success("Saved"))
+      .catch((e: any) => toast.error(e.message || "Failed"));
+
+  return (
+    <div className="space-y-8">
+      <form
+        onSubmit={onCreate}
+        className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto]"
+      >
+        <Input
+          placeholder="New agent name (e.g. CNFans, AllChinaBuy)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Button type="submit" disabled={busy}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add agent"}
+        </Button>
+      </form>
+
+      <div className="space-y-4">
+        {items.map((a) => (
+          <div key={a.id} className="space-y-3 rounded-2xl border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-background">
+                {a.logo_url ? (
+                  <img src={a.logo_url} className="h-full w-full object-contain" />
+                ) : (
+                  <span className="text-xs font-bold">{a.name.slice(0, 2)}</span>
+                )}
+              </div>
+              <Input
+                className="h-9 max-w-xs"
+                value={a.name}
+                onChange={(e) => patch(a.id, { name: e.target.value })}
+                onBlur={() => save(a.id, { name: a.name })}
+              />
+              <label className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                <Crown className="h-3.5 w-3.5" />
+                Recommended
+                <Switch
+                  checked={a.recommended}
+                  onCheckedChange={(v) => {
+                    setItems((it) =>
+                      it.map((x) => ({ ...x, recommended: x.id === a.id ? v : v ? false : x.recommended })),
+                    );
+                    save(a.id, { recommended: v });
+                  }}
+                />
+              </label>
+              <label className="flex items-center gap-1.5 text-xs">
+                Active
+                <Switch
+                  checked={a.active}
+                  onCheckedChange={(v) => {
+                    patch(a.id, { active: v });
+                    save(a.id, { active: v });
+                  }}
+                />
+              </label>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="ml-auto"
+                onClick={async () => {
+                  if (!window.confirm(`Delete "${a.name}"? This cannot be undone.`)) return;
+                  await deleteFn({ data: { id: a.id, adminKey: getKey() ?? "" } });
+                  toast.success("Deleted");
+                  refresh();
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Logo image URL</label>
+                <Input
+                  value={a.logo_url ?? ""}
+                  placeholder="https://…/logo.png"
+                  onChange={(e) => patch(a.id, { logo_url: e.target.value })}
+                  onBlur={() => save(a.id, { logo_url: a.logo_url || null })}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Affiliate register link</label>
+                <Input
+                  value={a.register_url ?? ""}
+                  placeholder="https://agent.com/register?ref=YOURCODE"
+                  onChange={(e) => patch(a.id, { register_url: e.target.value })}
+                  onBlur={() => save(a.id, { register_url: a.register_url || "" })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-medium">Link converter</p>
+              <p className="text-[11px] text-muted-foreground">
+                Built as <code className="text-primary">{`{base}/{platform}/{productId}?ref={ref}`}</code>
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Input
+                  value={a.base ?? ""}
+                  placeholder="https://uidbuy.com/product"
+                  onChange={(e) => patch(a.id, { base: e.target.value })}
+                  onBlur={() => save(a.id, { base: a.base })}
+                />
+                <Input
+                  value={a.ref ?? ""}
+                  placeholder="Referral code"
+                  onChange={(e) => patch(a.id, { ref: e.target.value })}
+                  onBlur={() => save(a.id, { ref: a.ref })}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-[11px] text-muted-foreground">1688 #</label>
+                  <Input
+                    value={a.platform_1688 ?? ""}
+                    onChange={(e) => patch(a.id, { platform_1688: e.target.value })}
+                    onBlur={() => save(a.id, { platform_1688: a.platform_1688 })}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-muted-foreground">Taobao #</label>
+                  <Input
+                    value={a.platform_taobao ?? ""}
+                    onChange={(e) => patch(a.id, { platform_taobao: e.target.value })}
+                    onBlur={() => save(a.id, { platform_taobao: a.platform_taobao })}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-muted-foreground">Weidian #</label>
+                  <Input
+                    value={a.platform_weidian ?? ""}
+                    onChange={(e) => patch(a.id, { platform_weidian: e.target.value })}
+                    onBlur={() => save(a.id, { platform_weidian: a.platform_weidian })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-medium">Promotion popup</p>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Promo image URL (optional)</label>
+                <Input
+                  value={a.promo_image_url ?? ""}
+                  placeholder="https://…/promo.png"
+                  onChange={(e) => patch(a.id, { promo_image_url: e.target.value })}
+                  onBlur={() => save(a.id, { promo_image_url: a.promo_image_url || null })}
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-muted-foreground">Title (EN)</label>
+                  <Input
+                    value={a.promo_title_en ?? ""}
+                    onChange={(e) => patch(a.id, { promo_title_en: e.target.value })}
+                    onBlur={() => save(a.id, { promo_title_en: a.promo_title_en || "" })}
+                  />
+                  <textarea
+                    className="mt-1 min-h-20 w-full rounded-md border border-border bg-background p-2 text-sm"
+                    placeholder="Body (EN)"
+                    value={a.promo_body_en ?? ""}
+                    onChange={(e) => patch(a.id, { promo_body_en: e.target.value })}
+                    onBlur={() => save(a.id, { promo_body_en: a.promo_body_en || "" })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] text-muted-foreground">Title (PL)</label>
+                  <Input
+                    value={a.promo_title_pl ?? ""}
+                    onChange={(e) => patch(a.id, { promo_title_pl: e.target.value })}
+                    onBlur={() => save(a.id, { promo_title_pl: a.promo_title_pl || "" })}
+                  />
+                  <textarea
+                    className="mt-1 min-h-20 w-full rounded-md border border-border bg-background p-2 text-sm"
+                    placeholder="Body (PL)"
+                    value={a.promo_body_pl ?? ""}
+                    onChange={(e) => patch(a.id, { promo_body_pl: e.target.value })}
+                    onBlur={() => save(a.id, { promo_body_pl: a.promo_body_pl || "" })}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

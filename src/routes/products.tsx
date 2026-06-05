@@ -3,8 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { listApprovedProducts, CATEGORIES } from "@/lib/products.functions";
 import { getAppSettings } from "@/lib/settings.functions";
-import { useLang, t, useCurrency, formatPrice } from "@/lib/i18n";
-import { toAgentLink, DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
+import { listActiveAgents } from "@/lib/agents.functions";
+import { useLang, t, useCurrency, formatPrice, useAgentId } from "@/lib/i18n";
+import { toAgentLink, agentToConfig, DEFAULT_AGENT_CONFIG } from "@/lib/agent-link";
 import { Loader2, ShoppingBag, Camera, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,13 +35,29 @@ function ProductsPage() {
   const tr = t[lang].products;
   const list = useServerFn(listApprovedProducts);
   const getSettings = useServerFn(getAppSettings);
+  const getAgents = useServerFn(listActiveAgents);
+  const [chosenAgentId] = useAgentId();
+  const [agents, setAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Product[]>([]);
   const [cat, setCat] = useState<string>("");
   const [q, setQ] = useState("");
   const [blocked, setBlocked] = useState(false);
-  const [agentConfig, setAgentConfig] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
   const navigate = useNavigate();
+
+  const chosenAgent =
+    agents.find((a) => a.id === chosenAgentId) ??
+    agents.find((a) => a.recommended) ??
+    agents[0] ??
+    null;
+  const agentConfig = chosenAgent ? agentToConfig(chosenAgent) : DEFAULT_AGENT_CONFIG;
+  const agentName = chosenAgent?.name ?? "UIDBuy";
+
+  useEffect(() => {
+    getAgents()
+      .then((r) => setAgents(r.agents ?? []))
+      .catch(() => {});
+  }, [getAgents]);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,10 +65,8 @@ function ProductsPage() {
       const s = await getSettings().catch(() => ({
         disable_products: false,
         critical_alert: false,
-        agent_config: DEFAULT_AGENT_CONFIG,
       }));
       if (cancelled) return;
-      if ((s as any).agent_config) setAgentConfig((s as any).agent_config);
       if (s.disable_products || s.critical_alert) {
         setBlocked(true);
         setLoading(false);
@@ -66,6 +81,7 @@ function ProductsPage() {
     })();
     return () => { cancelled = true; };
   }, [cat, list, getSettings]);
+
 
 
   if (blocked) {
@@ -178,7 +194,7 @@ function ProductsPage() {
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
-                      {tr.buy}
+                      {tr.buy} {agentName}
                     </a>
                     <button
                       type="button"

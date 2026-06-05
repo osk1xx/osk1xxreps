@@ -5,8 +5,10 @@ export type Currency = "CNY" | "PLN" | "USD" | "EUR";
 
 const LANG_KEY = "osk:lang";
 const CUR_KEY = "osk:currency";
+const AGENT_KEY = "osk:agent";
 const LANG_EVT = "osk:lang-change";
 const CUR_EVT = "osk:cur-change";
+const AGENT_EVT = "osk:agent-change";
 
 export function getStoredLang(): Lang | null {
   if (typeof window === "undefined") return null;
@@ -77,6 +79,33 @@ export function useCurrency(): [Currency, (c: Currency) => void] {
   return [cur, setStoredCurrency];
 }
 
+// Chosen agent (by id). Drives "Buy with X", promo popup and link conversion.
+export function getStoredAgent(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(AGENT_KEY);
+}
+
+export function setStoredAgent(id: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(AGENT_KEY, id);
+  window.dispatchEvent(new CustomEvent(AGENT_EVT));
+}
+
+export function useAgentId(): [string | null, (id: string) => void] {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    const sync = () => setId(getStoredAgent());
+    sync();
+    window.addEventListener(AGENT_EVT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(AGENT_EVT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  return [id, setStoredAgent];
+}
+
 export function formatPrice(priceCNY: number | null | undefined, cur: Currency): string {
   if (priceCNY == null) return "—";
   const v = priceCNY * CNY_RATES[cur];
@@ -90,11 +119,24 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Products",
+      agents: "Agents",
       tutorials: "Tutorials",
       tracking: "Tracking",
       sizes: "Size Guide",
       gifts: "Register for Prizes",
     },
+    agents: {
+      title: "Choose your agent",
+      sub: "Pick the shipping agent you want to use. The recommended one gives the best deals.",
+      recommended: "Recommended",
+      choose: "Choose",
+      chosen: "Your agent",
+      register: "Register",
+      pickTitle: "Pick your agent",
+      pickSub: "You can change this anytime. The recommended agent gives you the best deals.",
+      continue: "Continue",
+    },
+
     home: {
       title: "OSK1XX REPS – FIND. CHECK. WEAR.",
       sub: "The plug for the rep game. Fastest QC photos, curated picks, no cap.",
@@ -126,8 +168,9 @@ export const t = {
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
       all: "All",
       currency: "Currency",
-      buy: "Buy with UIDBuy",
+      buy: "Buy with",
       checkQc: "Check QC",
+
     },
     tutorials: {
       title: "Tutorials",
@@ -149,11 +192,24 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Produkty",
+      agents: "Agenci",
       tutorials: "Poradniki",
       tracking: "Śledzenie",
       sizes: "Rozmiarówka",
       gifts: "Zarejestruj po nagrody",
     },
+    agents: {
+      title: "Wybierz agenta",
+      sub: "Wybierz agenta wysyłkowego, którego chcesz używać. Polecany daje najlepsze oferty.",
+      recommended: "Polecany",
+      choose: "Wybierz",
+      chosen: "Twój agent",
+      register: "Zarejestruj się",
+      pickTitle: "Wybierz swojego agenta",
+      pickSub: "Możesz to zmienić w każdej chwili. Polecany agent daje najlepsze oferty.",
+      continue: "Dalej",
+    },
+
     home: {
       title: "OSK1XX REPS – FIND. CHECK. WEAR.",
       sub: "Wtyczka do świata repów. Najszybsze QC, wyselekcjonowane dropy, bez ściemy.",
@@ -185,7 +241,7 @@ export const t = {
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
       all: "Wszystkie",
       currency: "Waluta",
-      buy: "Kup przez UIDBuy",
+      buy: "Kup przez",
       checkQc: "Sprawdź QC",
     },
     tutorials: {

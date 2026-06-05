@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { Navbar } from "@/components/site/Navbar";
 import { LanguageModal } from "@/components/site/LanguageModal";
+import { AgentModal } from "@/components/site/AgentModal";
 import { PromoPopup } from "@/components/site/PromoPopup";
 import { CriticalAlertModal } from "@/components/site/CriticalAlertModal";
 import { Toaster } from "@/components/ui/sonner";
@@ -126,8 +127,10 @@ function RootComponent() {
         <Navbar />
         <Outlet />
         <LanguageModal />
+        <AgentModal />
         <PromoPopup />
         <CriticalAlertModal />
+
         <Toaster />
       </div>
     </QueryClientProvider>

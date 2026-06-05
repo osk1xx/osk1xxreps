@@ -46,6 +46,25 @@ export function normalizeAgentConfig(input: unknown): AgentConfig {
   };
 }
 
+// Convert an agent row (from the `agents` table) into an AgentConfig.
+export function agentToConfig(agent: {
+  base?: string | null;
+  ref?: string | null;
+  platform_1688?: string | null;
+  platform_taobao?: string | null;
+  platform_weidian?: string | null;
+} | null | undefined): AgentConfig {
+  return normalizeAgentConfig({
+    base: agent?.base ?? undefined,
+    ref: agent?.ref ?? undefined,
+    platforms: {
+      "1688": agent?.platform_1688 ?? undefined,
+      taobao: agent?.platform_taobao ?? undefined,
+      weidian: agent?.platform_weidian ?? undefined,
+    },
+  });
+}
+
 // Detect platform + product id from a raw seller URL.
 export function parseSellerLink(
   raw: string,
