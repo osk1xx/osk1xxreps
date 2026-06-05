@@ -41,7 +41,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — osk1xx reps" }] }),
 });
 
-type Tab = "products" | "tutorials" | "settings";
+type Tab = "products" | "agents" | "tutorials" | "settings";
 
 function getKey(): string | null {
   if (typeof window === "undefined") return null;
