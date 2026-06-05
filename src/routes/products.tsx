@@ -3,8 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { listApprovedProducts, CATEGORIES } from "@/lib/products.functions";
 import { getAppSettings } from "@/lib/settings.functions";
-import { useLang, t, useCurrency, formatPrice } from "@/lib/i18n";
-import { toAgentLink, DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
+import { listActiveAgents } from "@/lib/agents.functions";
+import { useLang, t, useCurrency, formatPrice, useAgentId } from "@/lib/i18n";
+import { toAgentLink, agentToConfig, DEFAULT_AGENT_CONFIG } from "@/lib/agent-link";
 import { Loader2, ShoppingBag, Camera, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
