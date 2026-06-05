@@ -127,8 +127,10 @@ function RootComponent() {
         <Navbar />
         <Outlet />
         <LanguageModal />
+        <AgentModal />
         <PromoPopup />
         <CriticalAlertModal />
+
         <Toaster />
       </div>
     </QueryClientProvider>
