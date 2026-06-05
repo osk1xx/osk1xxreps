@@ -241,7 +241,7 @@ export const t = {
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
       all: "Wszystkie",
       currency: "Waluta",
-      buy: "Kup przez UIDBuy",
+      buy: "Kup przez",
       checkQc: "Sprawdź QC",
     },
     tutorials: {
