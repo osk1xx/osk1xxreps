@@ -79,6 +79,33 @@ export function useCurrency(): [Currency, (c: Currency) => void] {
   return [cur, setStoredCurrency];
 }
 
+// Chosen agent (by id). Drives "Buy with X", promo popup and link conversion.
+export function getStoredAgent(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(AGENT_KEY);
+}
+
+export function setStoredAgent(id: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(AGENT_KEY, id);
+  window.dispatchEvent(new CustomEvent(AGENT_EVT));
+}
+
+export function useAgentId(): [string | null, (id: string) => void] {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    const sync = () => setId(getStoredAgent());
+    sync();
+    window.addEventListener(AGENT_EVT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(AGENT_EVT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  return [id, setStoredAgent];
+}
+
 export function formatPrice(priceCNY: number | null | undefined, cur: Currency): string {
   if (priceCNY == null) return "—";
   const v = priceCNY * CNY_RATES[cur];
