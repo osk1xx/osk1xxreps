@@ -192,11 +192,24 @@ export const t = {
     nav: {
       qc: "QC Finder",
       products: "Produkty",
+      agents: "Agenci",
       tutorials: "Poradniki",
       tracking: "Śledzenie",
       sizes: "Rozmiarówka",
       gifts: "Zarejestruj po nagrody",
     },
+    agents: {
+      title: "Wybierz agenta",
+      sub: "Wybierz agenta wysyłkowego, którego chcesz używać. Polecany daje najlepsze oferty.",
+      recommended: "Polecany",
+      choose: "Wybierz",
+      chosen: "Twój agent",
+      register: "Zarejestruj się",
+      pickTitle: "Wybierz swojego agenta",
+      pickSub: "Możesz to zmienić w każdej chwili. Polecany agent daje najlepsze oferty.",
+      continue: "Dalej",
+    },
+
     home: {
       title: "OSK1XX REPS – FIND. CHECK. WEAR.",
       sub: "Wtyczka do świata repów. Najszybsze QC, wyselekcjonowane dropy, bez ściemy.",
