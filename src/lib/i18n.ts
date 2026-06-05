@@ -168,8 +168,9 @@ export const t = {
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
       all: "All",
       currency: "Currency",
-      buy: "Buy with UIDBuy",
+      buy: "Buy with",
       checkQc: "Check QC",
+
     },
     tutorials: {
       title: "Tutorials",
