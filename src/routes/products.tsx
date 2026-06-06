@@ -166,7 +166,7 @@ function ProductsPage() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-auto flex gap-2 pt-1">
+                  <div className="mt-auto grid grid-cols-2 gap-2 pt-1">
                     <a
                       href={agentUrl}
                       target="_blank"
@@ -175,20 +175,20 @@ function ProductsPage() {
                         navigator.clipboard?.writeText(agentUrl).catch(() => {});
                         toast.success("Link copied");
                       }}
-                      className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
+                      className="flex items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-center text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
                     >
-                      <ShoppingBag className="h-3.5 w-3.5" />
-                      {tr.buy}
+                      <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{tr.buy}</span>
                     </a>
                     <button
                       type="button"
                       onClick={() =>
                         navigate({ to: "/qc", search: { url: p.source_url } })
                       }
-                      className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border px-2 py-1.5 text-[11px] font-semibold text-foreground transition hover:border-primary/60 hover:text-primary"
+                      className="flex items-center justify-center gap-1 rounded-lg border border-border px-2 py-1.5 text-center text-[11px] font-semibold text-foreground transition hover:border-primary/60 hover:text-primary"
                     >
-                      <Camera className="h-3.5 w-3.5" />
-                      {tr.checkQc}
+                      <Camera className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{tr.checkQc}</span>
                     </button>
                   </div>
                 </div>
