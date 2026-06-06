@@ -244,14 +244,30 @@ function ProductsTab() {
         </Button>
       </form>
 
-      <Input
-        placeholder="Search products by name…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          placeholder="Search products by name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 min-w-[180px]"
+        />
+        <select
+          value={filterCat}
+          onChange={(e) => setFilterCat(e.target.value)}
+          className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+        >
+          <option value="">All categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items
+          .filter((p) => !filterCat || p.category === filterCat)
           .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()))
           .map((p) => (
           <div key={p.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
