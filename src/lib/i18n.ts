@@ -120,7 +120,7 @@ export const t = {
     },
     products: {
       title: "Products",
-      sub: "Curated reps catalog. Click to copy the link.",
+      sub: "Curated reps catalog. Click to open the page or check QC's.",
       total: "items",
       empty: "No products in this category yet.",
       maintenance: "WE ARE MAKING THINGS BETTER. COMING BACK SOON.",
