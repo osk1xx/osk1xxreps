@@ -123,14 +123,14 @@ export function Navbar() {
 
       {/* Mobile nav */}
       <div className="border-t border-border/60 md:hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-1 overflow-x-auto px-4 py-2 text-xs">
+        <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-0.5 px-2 py-2 text-[10px]">
           {navItems.map((it) => {
             const active = loc.pathname === it.to;
             return (
               <Link
                 key={it.to}
                 to={it.to}
-                className={`relative rounded-full px-3 py-1 transition-all duration-300 ${
+                className={`relative whitespace-nowrap rounded-full px-1.5 py-1 transition-all duration-300 ${
                   active
                     ? "bg-primary/15 text-primary ring-1 ring-primary/40 shadow-[0_0_10px_var(--primary)]"
                     : "text-muted-foreground hover:text-foreground"
@@ -141,7 +141,7 @@ export function Navbar() {
             );
           })}
           {!criticalAlert && (
-            <a href={REGISTER_URL} target="_blank" rel="noopener noreferrer" className="text-primary">
+            <a href={REGISTER_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 text-primary">
               🎁
             </a>
           )}
