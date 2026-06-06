@@ -157,12 +157,12 @@ function ProductsPage() {
                 <div className="flex flex-1 flex-col gap-2 p-3">
                   <span className="line-clamp-2 text-sm font-medium">{p.name}</span>
                   <div className="flex flex-col leading-tight">
-                    <span className="text-sm font-bold text-primary">
-                      {formatPrice(p.price_cny, "CNY")}
+                    <span className="text-sm font-bold text-foreground">
+                      {formatPrice(p.price_cny, cur)}
                     </span>
                     {cur !== "CNY" && (
                       <span className="text-[11px] text-muted-foreground">
-                        ≈ {formatPrice(p.price_cny, cur)}
+                        {formatPrice(p.price_cny, "CNY")}
                       </span>
                     )}
                   </div>

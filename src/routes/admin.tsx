@@ -25,7 +25,7 @@ import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, LogOut, Check, Trash2, Plus } from "lucide-react";
+import { Loader2, LogOut, Check, Trash2, Plus, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 const KEY_STORAGE = "admin_key";
@@ -160,6 +160,7 @@ function ProductsTab() {
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ category: CATEGORIES[0], name: "", url: "" });
   const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState<string>("");
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
@@ -243,14 +244,30 @@ function ProductsTab() {
         </Button>
       </form>
 
-      <Input
-        placeholder="Search products by name…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          placeholder="Search products by name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 min-w-[180px]"
+        />
+        <select
+          value={filterCat}
+          onChange={(e) => setFilterCat(e.target.value)}
+          className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+        >
+          <option value="">All categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items
+          .filter((p) => !filterCat || p.category === filterCat)
           .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()))
           .map((p) => (
           <div key={p.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
@@ -717,6 +734,18 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
               onChange={(e) => patch(s.id, { name: e.target.value })}
               onBlur={() => saveStep(s)}
             />
+            <Button
+              size="sm"
+              variant="outline"
+              title="Copy link to this step"
+              onClick={() => {
+                const url = `${window.location.origin}/tutorials?t=${tutorialId}&s=${s.id}`;
+                navigator.clipboard?.writeText(url).catch(() => {});
+                toast.success("Step link copied");
+              }}
+            >
+              <Link2 className="h-3 w-3" />
+            </Button>
             <Button
               size="sm"
               variant="destructive"

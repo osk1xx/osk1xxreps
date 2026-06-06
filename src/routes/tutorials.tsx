@@ -17,6 +17,10 @@ import {
 
 export const Route = createFileRoute("/tutorials")({
   component: TutorialsPage,
+  validateSearch: (s: Record<string, unknown>) => ({
+    t: typeof s.t === "string" ? s.t : undefined,
+    s: typeof s.s === "string" ? s.s : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Tutorials — osk1xx reps" },
@@ -38,6 +42,7 @@ type Step = { id: string; name: string; text: string; photos: string[] };
 
 function TutorialsPage() {
   const [lang] = useLang();
+  const sp = Route.useSearch();
   const tr = t[lang].tutorials;
   const list = useServerFn(listPublishedTutorials);
   const getOne = useServerFn(getTutorial);
@@ -54,7 +59,7 @@ function TutorialsPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      setSelected(null);
+      if (!sp.t) setSelected(null);
       const s = await getSettings().catch(() => ({ critical_alert: false }));
       if (cancelled) return;
       if ((s as any).critical_alert) {
@@ -72,12 +77,19 @@ function TutorialsPage() {
     return () => {
       cancelled = true;
     };
-  }, [lang, list, getSettings]);
+  }, [lang, list, getSettings, sp.t]);
 
-  const open = async (tut: Tut) => {
+  const openById = async (id: string, stepId?: string) => {
     setLoadingOne(true);
     try {
-      const r = await getOne({ data: { id: tut.id } });
+      const r = await getOne({ data: { id } });
+      if (!r.tutorial) return;
+      const tut: Tut = {
+        id: r.tutorial.id,
+        title: r.tutorial.title,
+        description: r.tutorial.description,
+        language: r.tutorial.language,
+      };
       const steps = ((r.steps as any[]) ?? []).map((x) => ({
         id: x.id,
         name: x.name,
@@ -85,10 +97,25 @@ function TutorialsPage() {
         photos: Array.isArray(x.photos) ? x.photos : [],
       }));
       setSelected({ tut, steps });
+      if (stepId) {
+        setTimeout(() => {
+          document
+            .getElementById(`step-${stepId}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
     } finally {
       setLoadingOne(false);
     }
   };
+
+  const open = (tut: Tut) => openById(tut.id);
+
+  useEffect(() => {
+    if (sp.t) openById(sp.t, sp.s);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp.t, sp.s]);
+
 
   if (blocked) {
     return (
@@ -167,7 +194,8 @@ function TutorialsPage() {
               {selected.steps.map((s, i) => (
                 <li
                   key={s.id}
-                  className="rounded-2xl border border-border bg-card p-5"
+                  id={`step-${s.id}`}
+                  className="scroll-mt-24 rounded-2xl border border-border bg-card p-5"
                 >
                   <div className="mb-2 flex items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
