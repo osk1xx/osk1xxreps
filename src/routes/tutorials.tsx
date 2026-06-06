@@ -194,7 +194,8 @@ function TutorialsPage() {
               {selected.steps.map((s, i) => (
                 <li
                   key={s.id}
-                  className="rounded-2xl border border-border bg-card p-5"
+                  id={`step-${s.id}`}
+                  className="scroll-mt-24 rounded-2xl border border-border bg-card p-5"
                 >
                   <div className="mb-2 flex items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
