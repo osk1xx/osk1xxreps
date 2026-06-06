@@ -179,7 +179,7 @@ export const t = {
     },
     products: {
       title: "Produkty",
-      sub: "Wybrany katalog repów. Kliknij aby skopiować link.",
+      sub: "Wybrany katalog repów. Kliknij aby otworzyć stronę lub sprawdzić QC.",
       total: "produktów",
       empty: "Brak produktów w tej kategorii.",
       maintenance: "PRACUJEMY NAD ULEPSZENIAMI. WRACAMY WKRÓTCE.",
