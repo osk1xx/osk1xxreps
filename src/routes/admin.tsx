@@ -160,6 +160,7 @@ function ProductsTab() {
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ category: CATEGORIES[0], name: "", url: "" });
   const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState<string>("");
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = async () => {
