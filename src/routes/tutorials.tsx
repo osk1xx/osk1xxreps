@@ -17,6 +17,10 @@ import {
 
 export const Route = createFileRoute("/tutorials")({
   component: TutorialsPage,
+  validateSearch: (s: Record<string, unknown>) => ({
+    t: typeof s.t === "string" ? s.t : undefined,
+    s: typeof s.s === "string" ? s.s : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Tutorials — osk1xx reps" },
