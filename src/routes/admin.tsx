@@ -736,6 +736,18 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
             />
             <Button
               size="sm"
+              variant="outline"
+              title="Copy link to this step"
+              onClick={() => {
+                const url = `${window.location.origin}/tutorials?t=${tutorialId}&s=${s.id}`;
+                navigator.clipboard?.writeText(url).catch(() => {});
+                toast.success("Step link copied");
+              }}
+            >
+              <Link2 className="h-3 w-3" />
+            </Button>
+            <Button
+              size="sm"
               variant="destructive"
               onClick={async () => {
                 await deleteStep({ data: { id: s.id, adminKey: getKey() ?? "" } });
