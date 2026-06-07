@@ -4,14 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Gift } from "lucide-react";
 import { getAppSettings } from "@/lib/settings.functions";
+import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { useLang, getStoredLang } from "@/lib/i18n";
-
-const UIDBUY_URL = "https://uidbuy.com/register?ref=LZU8AH";
 
 export function PromoPopup() {
   const loc = useLocation();
   const [lang] = useLang();
   const [open, setOpen] = useState(false);
+  const [agent, setAgent] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG);
   const getSettings = useServerFn(getAppSettings);
 
   useEffect(() => {
@@ -27,6 +27,7 @@ export function PromoPopup() {
         try {
           const s = await getSettings();
           if (cancelled) return;
+          if (s.agent_config) setAgent(s.agent_config as AgentConfig);
           if (s.critical_alert) return;
           setOpen(true);
         } catch {
@@ -61,6 +62,7 @@ export function PromoPopup() {
   };
 
   const en = lang === "en";
+  const promo = agent.promo;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
@@ -72,39 +74,43 @@ export function PromoPopup() {
               "linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
           }}
         >
-          <div className="mb-2 text-6xl leading-none">🎁</div>
+          {agent.logo_url ? (
+            <img
+              src={agent.logo_url}
+              alt={agent.name}
+              className="mx-auto mb-2 h-12 w-auto object-contain"
+            />
+          ) : (
+            <div className="mb-2 text-6xl leading-none">🎁</div>
+          )}
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/60 px-3 py-1 text-xs text-primary">
             <Gift className="h-3.5 w-3.5" />
             {en ? "Special Offer" : "Specjalna oferta"}
           </div>
           <DialogHeader className="mt-3">
             <DialogTitle className="text-2xl font-semibold tracking-tight">
-              {en
-                ? "35% OFF shipping for 6 months + unlimited 25% coupons"
-                : "35% RABATU na wysyłkę przez 6 miesięcy + nielimitowane kupony 25%"}
+              {en ? promo.title_en : promo.title_pl}
             </DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-relaxed">
-              {en
-                ? "UIDBUY is the new cheapest and fastest Chinese shipping agent. Lower fees, faster QC, faster shipping. New users get 35% off shipping valid for 6 months — plus an unlimited 25% off coupon you can collect every day."
-                : "UIDBUY to nowy, najtańszy i najszybszy chiński agent wysyłkowy. Niższe opłaty, szybsze QC, szybsza wysyłka. Nowi użytkownicy dostają 35% rabatu na wysyłkę ważne przez 6 miesięcy — plus nielimitowany kupon 25% do odbioru codziennie."}
+              {en ? promo.body_en : promo.body_pl}
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded-full border border-border px-2 py-1">UIDBUY</span>
+            <span className="rounded-full border border-border px-2 py-1">{agent.name}</span>
             <span>·</span>
             <span>{en ? "Cheapest · Fastest · Trusted" : "Najtaniej · Najszybciej · Zaufanie"}</span>
           </div>
 
           <div className="mt-6 flex flex-col gap-2">
             <a
-              href={UIDBUY_URL}
+              href={promo.url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}
               className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:opacity-90 shadow-[var(--shadow-glow)]"
             >
-              {en ? "I'm getting it →" : "Biorę to →"}
+              {en ? promo.cta_en : promo.cta_pl}
             </a>
             <button
               type="button"
