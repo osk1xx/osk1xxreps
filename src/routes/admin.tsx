@@ -24,6 +24,7 @@ import { getAppSettings, adminUpdateSettings } from "@/lib/settings.functions";
 import { DEFAULT_AGENT_CONFIG, type AgentConfig } from "@/lib/agent-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, LogOut, Check, Trash2, Plus, Link2 } from "lucide-react";
 import { toast } from "sonner";
