@@ -233,6 +233,17 @@ function TutorialsPage() {
                       ))}
                     </div>
                   )}
+                  {s.link_url && (
+                    <a
+                      href={s.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                    >
+                      {s.link_label || s.link_url}
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
                 </li>
               ))}
             </ol>
