@@ -178,7 +178,7 @@ function ProductsPage() {
                       className="flex items-center justify-center gap-1 rounded-lg bg-primary px-2 py-1.5 text-center text-[11px] font-semibold text-primary-foreground transition hover:opacity-90"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{tr.buy}</span>
+                      <span className="truncate">{tr.buy.replace("UIDBuy", agentConfig.name)}</span>
                     </a>
                     <button
                       type="button"
