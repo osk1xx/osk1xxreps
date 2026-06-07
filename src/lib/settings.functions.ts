@@ -21,10 +21,21 @@ export const getAppSettings = createServerFn({ method: "GET" }).handler(async ()
 const agentConfigSchema = z.object({
   base: z.string().url().max(300),
   ref: z.string().min(1).max(64),
+  name: z.string().min(1).max(80),
+  logo_url: z.string().url().max(2000).or(z.literal("")),
   platforms: z.object({
     "1688": z.string().min(1).max(16),
     taobao: z.string().min(1).max(16),
     weidian: z.string().min(1).max(16),
+  }),
+  promo: z.object({
+    title_en: z.string().max(300),
+    title_pl: z.string().max(300),
+    body_en: z.string().max(1500),
+    body_pl: z.string().max(1500),
+    cta_en: z.string().max(80),
+    cta_pl: z.string().max(80),
+    url: z.string().url().max(2000),
   }),
 });
 
