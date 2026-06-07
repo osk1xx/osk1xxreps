@@ -474,6 +474,21 @@ function SettingsTab() {
           </p>
         </div>
         <div className="space-y-2">
+          <label className="text-xs text-muted-foreground">Agent name (shown in promo popup & buttons)</label>
+          <Input
+            value={agent.name}
+            onChange={(e) => setAgent({ ...agent, name: e.target.value })}
+            placeholder="UIDBUY"
+          />
+          <label className="text-xs text-muted-foreground">Agent logo URL (shown in promo popup)</label>
+          <Input
+            value={agent.logo_url}
+            onChange={(e) => setAgent({ ...agent, logo_url: e.target.value })}
+            placeholder="https://…/logo.png"
+          />
+          {agent.logo_url ? (
+            <img src={agent.logo_url} alt="logo preview" className="h-10 w-auto rounded bg-background object-contain" />
+          ) : null}
           <label className="text-xs text-muted-foreground">Agent base URL</label>
           <Input
             value={agent.base}
