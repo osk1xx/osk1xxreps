@@ -2,6 +2,6 @@
   "name": "osk1xxreps",
   "compatibility_date": "2026-06-06",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
   "pages_build_output_dir": "dist/client"
 }
+git add .
