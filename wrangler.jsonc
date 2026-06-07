@@ -1,7 +1,7 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "osk1xxrepsss",
-  "compatibility_date": "2025-09-24",
+  "name": "osk1xxreps",
+  "compatibility_date": "2026-06-06",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
+  "main": "@tanstack/react-start/server-entry",
+  "pages_build_output_dir": "dist/client"
 }
