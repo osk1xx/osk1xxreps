@@ -19,29 +19,69 @@
 //   Weidian: https://shop<...>.v.weidian.com/item.html?itemID=<ID>
 // ============================================================================
 
+export type AgentPromo = {
+  title_en: string;
+  title_pl: string;
+  body_en: string;
+  body_pl: string;
+  cta_en: string;
+  cta_pl: string;
+  url: string;
+};
+
 export type AgentConfig = {
   base: string;
   ref: string;
+  name: string;
+  logo_url: string;
   platforms: { "1688": string; taobao: string; weidian: string };
+  promo: AgentPromo;
+};
+
+export const DEFAULT_AGENT_PROMO: AgentPromo = {
+  title_en: "35% OFF shipping for 6 months + unlimited 25% coupons",
+  title_pl: "35% RABATU na wysyłkę przez 6 miesięcy + nielimitowane kupony 25%",
+  body_en:
+    "UIDBUY is the new cheapest and fastest Chinese shipping agent. Lower fees, faster QC, faster shipping. New users get 35% off shipping valid for 6 months — plus an unlimited 25% off coupon you can collect every day.",
+  body_pl:
+    "UIDBUY to nowy, najtańszy i najszybszy chiński agent wysyłkowy. Niższe opłaty, szybsze QC, szybsza wysyłka. Nowi użytkownicy dostają 35% rabatu na wysyłkę ważne przez 6 miesięcy — plus nielimitowany kupon 25% do odbioru codziennie.",
+  cta_en: "I'm getting it →",
+  cta_pl: "Biorę to →",
+  url: "https://uidbuy.com/register?ref=LZU8AH",
 };
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   base: "https://uidbuy.com/product",
   ref: "LZU8AH",
+  name: "UIDBUY",
+  logo_url: "",
   platforms: { "1688": "1", taobao: "2", weidian: "3" },
+  promo: DEFAULT_AGENT_PROMO,
 };
 
 // Normalize whatever is stored in settings into a safe config.
 export function normalizeAgentConfig(input: unknown): AgentConfig {
   const c = (input ?? {}) as Partial<AgentConfig>;
   const p = (c.platforms ?? {}) as Partial<AgentConfig["platforms"]>;
+  const pr = (c.promo ?? {}) as Partial<AgentPromo>;
   return {
     base: (c.base || DEFAULT_AGENT_CONFIG.base).replace(/\/+$/, ""),
     ref: c.ref || DEFAULT_AGENT_CONFIG.ref,
+    name: c.name || DEFAULT_AGENT_CONFIG.name,
+    logo_url: c.logo_url || "",
     platforms: {
       "1688": p["1688"] || DEFAULT_AGENT_CONFIG.platforms["1688"],
       taobao: p.taobao || DEFAULT_AGENT_CONFIG.platforms.taobao,
       weidian: p.weidian || DEFAULT_AGENT_CONFIG.platforms.weidian,
+    },
+    promo: {
+      title_en: pr.title_en ?? DEFAULT_AGENT_PROMO.title_en,
+      title_pl: pr.title_pl ?? DEFAULT_AGENT_PROMO.title_pl,
+      body_en: pr.body_en ?? DEFAULT_AGENT_PROMO.body_en,
+      body_pl: pr.body_pl ?? DEFAULT_AGENT_PROMO.body_pl,
+      cta_en: pr.cta_en ?? DEFAULT_AGENT_PROMO.cta_en,
+      cta_pl: pr.cta_pl ?? DEFAULT_AGENT_PROMO.cta_pl,
+      url: pr.url || DEFAULT_AGENT_PROMO.url,
     },
   };
 }
