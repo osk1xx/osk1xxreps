@@ -9,6 +9,8 @@ import {
   ChevronRight,
   BookOpen,
   ArrowLeft,
+  ExternalLink,
+
 } from "lucide-react";
 import {
   Dialog,
@@ -38,7 +40,14 @@ type Tut = {
   description: string | null;
   language: string;
 };
-type Step = { id: string; name: string; text: string; photos: string[] };
+type Step = {
+  id: string;
+  name: string;
+  text: string;
+  photos: string[];
+  link_url: string;
+  link_label: string;
+};
 
 function TutorialsPage() {
   const [lang] = useLang();
@@ -95,6 +104,8 @@ function TutorialsPage() {
         name: x.name,
         text: x.text,
         photos: Array.isArray(x.photos) ? x.photos : [],
+        link_url: x.link_url ?? "",
+        link_label: x.link_label ?? "",
       }));
       setSelected({ tut, steps });
       if (stepId) {
@@ -223,6 +234,17 @@ function TutorialsPage() {
                         </button>
                       ))}
                     </div>
+                  )}
+                  {s.link_url && (
+                    <a
+                      href={s.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                    >
+                      {s.link_label || s.link_url}
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
                   )}
                 </li>
               ))}

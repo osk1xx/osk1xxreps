@@ -147,6 +147,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          link_label: string
+          link_url: string
           name: string
           photos: Json
           position: number
@@ -157,6 +159,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          link_label?: string
+          link_url?: string
           name?: string
           photos?: Json
           position?: number
@@ -167,6 +171,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          link_label?: string
+          link_url?: string
           name?: string
           photos?: Json
           position?: number

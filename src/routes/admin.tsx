@@ -713,7 +713,15 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
       .map((x: string) => x.trim())
       .filter(Boolean);
     return updateStep({
-      data: { id: s.id, adminKey: getKey() ?? "", name: s.name, text: s.text, photos },
+      data: {
+        id: s.id,
+        adminKey: getKey() ?? "",
+        name: s.name,
+        text: s.text,
+        photos,
+        link_url: s.link_url || "",
+        link_label: s.link_label || "",
+      },
     })
       .then(() => toast.success("Step saved"))
       .catch((e: any) => toast.error(e.message || "Failed"));
@@ -771,6 +779,22 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
             onChange={(e) => patch(s.id, { photosText: e.target.value })}
             onBlur={() => saveStep(s)}
           />
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <Input
+              className="h-8 text-sm"
+              placeholder='Button label (e.g. "Register here")'
+              value={s.link_label || ""}
+              onChange={(e) => patch(s.id, { link_label: e.target.value })}
+              onBlur={() => saveStep(s)}
+            />
+            <Input
+              className="h-8 text-sm"
+              placeholder="Button URL (https://...)"
+              value={s.link_url || ""}
+              onChange={(e) => patch(s.id, { link_url: e.target.value })}
+              onBlur={() => saveStep(s)}
+            />
+          </div>
         </div>
       ))}
       <Button
