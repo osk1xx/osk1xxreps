@@ -779,6 +779,22 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
             onChange={(e) => patch(s.id, { photosText: e.target.value })}
             onBlur={() => saveStep(s)}
           />
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <Input
+              className="h-8 text-sm"
+              placeholder='Button label (e.g. "Register here")'
+              value={s.link_label || ""}
+              onChange={(e) => patch(s.id, { link_label: e.target.value })}
+              onBlur={() => saveStep(s)}
+            />
+            <Input
+              className="h-8 text-sm"
+              placeholder="Button URL (https://...)"
+              value={s.link_url || ""}
+              onChange={(e) => patch(s.id, { link_url: e.target.value })}
+              onBlur={() => saveStep(s)}
+            />
+          </div>
         </div>
       ))}
       <Button
