@@ -171,6 +171,8 @@ export const adminUpdateStep = createServerFn({ method: "POST" })
         name: z.string().max(200).optional(),
         text: z.string().max(5000).optional(),
         photos: photos.optional(),
+        link_url: z.string().url().max(2000).or(z.literal("")).optional(),
+        link_label: z.string().max(100).optional(),
         position: z.number().int().optional(),
       })
       .parse(input),
