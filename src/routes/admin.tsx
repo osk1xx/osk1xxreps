@@ -713,7 +713,15 @@ function StepsEditor({ tutorialId }: { tutorialId: string }) {
       .map((x: string) => x.trim())
       .filter(Boolean);
     return updateStep({
-      data: { id: s.id, adminKey: getKey() ?? "", name: s.name, text: s.text, photos },
+      data: {
+        id: s.id,
+        adminKey: getKey() ?? "",
+        name: s.name,
+        text: s.text,
+        photos,
+        link_url: s.link_url || "",
+        link_label: s.link_label || "",
+      },
     })
       .then(() => toast.success("Step saved"))
       .catch((e: any) => toast.error(e.message || "Failed"));
