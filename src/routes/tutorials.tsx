@@ -9,6 +9,8 @@ import {
   ChevronRight,
   BookOpen,
   ArrowLeft,
+  ExternalLink,
+
 } from "lucide-react";
 import {
   Dialog,
