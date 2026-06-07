@@ -38,7 +38,14 @@ type Tut = {
   description: string | null;
   language: string;
 };
-type Step = { id: string; name: string; text: string; photos: string[] };
+type Step = {
+  id: string;
+  name: string;
+  text: string;
+  photos: string[];
+  link_url: string;
+  link_label: string;
+};
 
 function TutorialsPage() {
   const [lang] = useLang();
