@@ -530,6 +530,58 @@ function SettingsTab() {
               />
             </div>
           </div>
+
+          <div className="space-y-2 border-t border-border pt-3">
+            <h4 className="text-sm font-medium">Promotion popup</h4>
+            <p className="text-xs text-muted-foreground">
+              Edit the text shown in the first-visit promo popup (English & Polish).
+            </p>
+            <label className="text-xs text-muted-foreground">Title (EN)</label>
+            <Input
+              value={agent.promo.title_en}
+              onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, title_en: e.target.value } })}
+            />
+            <label className="text-xs text-muted-foreground">Title (PL)</label>
+            <Input
+              value={agent.promo.title_pl}
+              onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, title_pl: e.target.value } })}
+            />
+            <label className="text-xs text-muted-foreground">Body (EN)</label>
+            <Textarea
+              rows={3}
+              value={agent.promo.body_en}
+              onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, body_en: e.target.value } })}
+            />
+            <label className="text-xs text-muted-foreground">Body (PL)</label>
+            <Textarea
+              rows={3}
+              value={agent.promo.body_pl}
+              onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, body_pl: e.target.value } })}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-muted-foreground">Button text (EN)</label>
+                <Input
+                  value={agent.promo.cta_en}
+                  onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, cta_en: e.target.value } })}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Button text (PL)</label>
+                <Input
+                  value={agent.promo.cta_pl}
+                  onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, cta_pl: e.target.value } })}
+                />
+              </div>
+            </div>
+            <label className="text-xs text-muted-foreground">Button link URL</label>
+            <Input
+              value={agent.promo.url}
+              onChange={(e) => setAgent({ ...agent, promo: { ...agent.promo, url: e.target.value } })}
+              placeholder="https://uidbuy.com/register?ref=…"
+            />
+          </div>
+
           <Button onClick={saveAgent} disabled={savingAgent}>
             {savingAgent ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save agent settings"}
           </Button>
