@@ -102,6 +102,8 @@ function TutorialsPage() {
         name: x.name,
         text: x.text,
         photos: Array.isArray(x.photos) ? x.photos : [],
+        link_url: x.link_url ?? "",
+        link_label: x.link_label ?? "",
       }));
       setSelected({ tut, steps });
       if (stepId) {
