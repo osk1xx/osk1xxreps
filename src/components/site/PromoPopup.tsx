@@ -78,7 +78,7 @@ export function PromoPopup() {
             <img
               src={agent.logo_url}
               alt={agent.name}
-              className="mx-auto mb-2 h-12 w-auto object-contain"
+              className="mx-auto mb-3 h-24 w-auto object-contain"
             />
           ) : (
             <div className="mb-2 text-6xl leading-none">🎁</div>
