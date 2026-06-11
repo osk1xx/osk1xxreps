@@ -1,7 +1,5 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "osk1xxrepsss",
-  "compatibility_date": "2025-09-24",
+  "compatibility_date": "2026-06-11",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
+  "pages_build_output_dir": "dist"
 }
